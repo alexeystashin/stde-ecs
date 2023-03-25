@@ -1,50 +1,44 @@
 using Leopotam.EcsLite;
-using TdGame;
 using UnityEngine;
 
-namespace Client {
+namespace TdGame
+{
     sealed class GameStartup : MonoBehaviour
     {
         EcsWorld world;
+        GameContext gameContext;
         IEcsSystems systems;
 
         void Start() {
             world = new EcsWorld();
-            systems = new EcsSystems(world);
+
+            gameContext = new GameContext(world);
+
+            systems = new EcsSystems(world, gameContext);
             systems
                 // register your systems here
-                .Add (new CreatureSpawnSystem())
-                .Add (new CreatureMoveSystem())
-                .Add (new ViewPositionUpdateSystem())
-                .Add (new CreatureArriveSystem())
-                .Add (new DestroyViewSystem())
-                .Add (new DestroyEntitySystem())
+                .Add(new CreatureSpawnSystem())
+                .Add(new UpdateCreatureListSystem())
+                .Add(new TurretFireSystem())
+                .Add(new EntityMoveSystem())
+                .Add(new ViewPositionUpdateSystem())
+                .Add(new BulletCollisionSystem())
+                .Add(new CreatureArriveSystem())
+                .Add(new BulletArriveSystem())
+                .Add(new DestroyViewSystem())
+                .Add(new DestroyEntitySystem())
                 
                 // register additional worlds here, for example:
-                // .AddWorld (new EcsWorld (), "events")
+                // .AddWorld(new EcsWorld(), "events")
 #if UNITY_EDITOR
                 // add debug systems for custom worlds here, for example:
-                // .Add (new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem ("events"))
+                // .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem("events"))
                 .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
                 .Init();
 
             // create initial entities
-            var positionPool = world.GetPool<Position>();
-            var creatureSpawnerPool = world.GetPool<CreatureSpawner>();
-            for(var i = 0; i < 3; i++)
-            {
-                var entity = world.NewEntity();
-
-                ref var position = ref positionPool.Add(entity);
-                position.lineId = i;
-                position.x = 0;
-                position.z = MagicNumbersGame.creatureSpawnerZ;
-
-                ref var creatureSpawner = ref creatureSpawnerPool.Add(entity);
-                creatureSpawner.cooldown = Random.Range(MagicNumbersGame.creatureSpawnerCooldownMin, MagicNumbersGame.creatureSpawnerCooldownMax);
-                creatureSpawner.creatureVelocityZ = MagicNumbersGame.creatureVelocityZ;
-            }
+            gameContext.objectBuilder.CreateInitialEntities();
         }
 
         void Update() {
@@ -68,6 +62,12 @@ namespace Client {
             if (world != null) {
                 world.Destroy();
                 world = null;
+            }
+
+            if (gameContext != null)
+            {
+                gameContext.Dispose();
+                gameContext = null;
             }
         }
     }
