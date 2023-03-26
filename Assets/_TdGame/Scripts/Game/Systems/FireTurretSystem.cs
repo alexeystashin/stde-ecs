@@ -3,12 +3,13 @@ using UnityEngine;
 
 namespace TdGame
 {
-    sealed class TurretFireSystem : IEcsInitSystem, IEcsRunSystem
+    sealed class FireTurretSystem : IEcsInitSystem, IEcsRunSystem
     {
         GameContext context;
         EcsWorld world;
         EcsPool<Turret> turretPool;
         EcsPool<Position> positionPool;
+        EcsPool<AnimationMarker> animationMarkerPool;
 
         public void Init(IEcsSystems systems)
         {
@@ -16,11 +17,12 @@ namespace TdGame
             world = systems.GetWorld();
             turretPool = world.GetPool<Turret>();
             positionPool = world.GetPool<Position>();
+            animationMarkerPool = world.GetPool<AnimationMarker>();
         }
 
         public void Run(IEcsSystems systems)
         {
-            var filter = world.Filter<Turret>().Inc<Position>().End();
+            var filter = world.Filter<Turret>().Inc<Position>().Exc<AnimationMarker>().End();
 
             foreach (int entity in filter)
             {
@@ -30,7 +32,7 @@ namespace TdGame
                 if (turret.cooldown > 0)
                     turret.cooldown = Mathf.Max(0, turret.cooldown - Time.deltaTime);
 
-                if (turret.cooldown <= 0 && context.creaturesByLine[position.lineId].Count > 0)
+                if (turret.cooldown <= 0 && !animationMarkerPool.Has(entity) && context.creaturesByLine[position.lineId].Count > 0)
                 {
                     context.objectBuilder.SpawnBullet(position.lineId, position.z);
                     turret.cooldown = MagicNumbersGame.turretFireCooldown;

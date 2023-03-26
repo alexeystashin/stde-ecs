@@ -1,16 +1,22 @@
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace TdGame
 {
-    sealed class UpdateCreatureListSystem : IEcsRunSystem
+    sealed class UpdateCreatureListSystem : IEcsInitSystem, IEcsRunSystem
     {
+        GameContext context;
+        EcsWorld world;
+        EcsPool<Position> positionPool;
+
+        public void Init(IEcsSystems systems)
+        {
+            context = systems.GetShared<GameContext>();
+            world = systems.GetWorld();
+            positionPool = world.GetPool<Position>();
+        }
+
         public void Run(IEcsSystems systems)
         {
-            var world = systems.GetWorld();
-            var context = systems.GetShared<GameContext>();
-            var positionPool = world.GetPool<Position>();
-
             var filter = world.Filter<Creature>().Inc<Position>().Exc<DestroyMarker>().End();
 
             for (var i = 0; i < context.creaturesByLine.Count; i++)

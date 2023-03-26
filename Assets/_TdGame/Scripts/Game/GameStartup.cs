@@ -13,16 +13,21 @@ namespace TdGame
             world = new EcsWorld();
 
             gameContext = new GameContext(world);
+            gameContext.gameInput = gameObject.AddComponent<GameInput>();
 
             systems = new EcsSystems(world, gameContext);
             systems
                 // register your systems here
-                .Add(new CreatureSpawnSystem())
+                .Add(new SpawnCreatureSystem())
                 .Add(new UpdateCreatureListSystem())
-                .Add(new TurretFireSystem())
-                .Add(new EntityMoveSystem())
-                .Add(new ViewPositionUpdateSystem())
+                .Add(new UpdateTurretListSystem())
+                .Add(new PlayerInputSystem())
+                .Add(new FireTurretSystem())
+                .Add(new MoveTurretSystem())
+                .Add(new MoveEntitySystem())
+                .Add(new UpdateViewPositionSystem())
                 .Add(new BulletCollisionSystem())
+                .Add(new ApplyDamageSystem())
                 .Add(new CreatureArriveSystem())
                 .Add(new BulletArriveSystem())
                 .Add(new DestroyViewSystem())

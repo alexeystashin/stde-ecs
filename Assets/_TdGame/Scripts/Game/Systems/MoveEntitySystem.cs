@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace TdGame
 {
-    sealed class EntityMoveSystem : IEcsInitSystem, IEcsRunSystem
+    sealed class MoveEntitySystem : IEcsInitSystem, IEcsRunSystem
     {
         EcsWorld world;
         EcsPool<Motion> motionPool;

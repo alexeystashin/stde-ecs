@@ -3,13 +3,19 @@ using UnityEngine;
 
 namespace TdGame
 {
-    sealed class DestroyViewSystem : IEcsRunSystem
+    sealed class DestroyViewSystem : IEcsInitSystem, IEcsRunSystem
     {
+        EcsWorld world;
+        EcsPool<View> viewPool;
+
+        public void Init(IEcsSystems systems)
+        {
+            world = systems.GetWorld();
+            viewPool = world.GetPool<View>();
+        }
+
         public void Run(IEcsSystems systems)
         {
-            var world = systems.GetWorld();
-            var viewPool = world.GetPool<View>();
-
             var filter = world.Filter<DestroyMarker>().Inc<View>().End();
 
             foreach (int entity in filter)
