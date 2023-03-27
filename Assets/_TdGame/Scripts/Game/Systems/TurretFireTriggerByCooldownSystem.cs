@@ -1,41 +1,42 @@
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace TdGame
 {
-    sealed class FireTurretSystem : IEcsInitSystem, IEcsRunSystem
+    sealed class TurretFireTriggerByCooldownSystem : IEcsInitSystem, IEcsRunSystem
     {
         GameContext context;
         EcsWorld world;
         EcsPool<Turret> turretPool;
+        EcsPool<TurretFireTrigger> turretFireTriggerPool;
         EcsPool<Position> positionPool;
-        EcsPool<AnimationMarker> animationMarkerPool;
+        EcsPool<Cooldown> cooldownPool;
 
         public void Init(IEcsSystems systems)
         {
             context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             turretPool = world.GetPool<Turret>();
+            turretFireTriggerPool = world.GetPool<TurretFireTrigger>();
             positionPool = world.GetPool<Position>();
-            animationMarkerPool = world.GetPool<AnimationMarker>();
+            cooldownPool = world.GetPool<Cooldown>();
         }
 
         public void Run(IEcsSystems systems)
         {
-            var filter = world.Filter<Turret>().Inc<Position>().Exc<AnimationMarker>().End();
+            var filter = world.Filter<Turret>().Exc<TurretFireTrigger>().Exc<AnimationMarker>().End();
 
             foreach (int entity in filter)
             {
                 ref var turret = ref turretPool.Get(entity);
                 ref var position = ref positionPool.Get(entity);
+                ref var cooldown = ref cooldownPool.Get(entity);
 
-                if (turret.cooldown > 0)
-                    turret.cooldown = Mathf.Max(0, turret.cooldown - Time.deltaTime);
+                if (!turret.template.autoAttack)
+                    continue;
 
-                if (turret.cooldown <= 0 && !animationMarkerPool.Has(entity) && context.creaturesByLine[position.lineId].Count > 0)
+                if (cooldown.cooldown <= 0 && context.creaturesByLine[position.lineId].Count > 0)
                 {
-                    context.objectBuilder.SpawnBullet(position.lineId, position.z);
-                    turret.cooldown = MagicNumbersGame.turretFireCooldown;
+                    turretFireTriggerPool.Add(entity);
                 }
             }
         }

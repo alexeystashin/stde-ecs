@@ -6,16 +6,32 @@ namespace TdGame
 {
     public class GameContext : IDisposable
     {
-        public GameInput gameInput;
+        public StaticGameData staticGameData;
+        public GameRules gameRules;
 
         public GameObjectBuilder objectBuilder;
+
+        public GameInput gameInput;
+
+        // game state
+
+        public int currentWave;
+
+        public bool isGameFinished;
+        public bool isWin;
+
+        // cache
 
         public List<List<int>> creaturesByLine;
         public List<List<int>> turretsByLine;
 
         public GameContext(EcsWorld world)
         {
-            objectBuilder = new GameObjectBuilder(world);
+            staticGameData = MockStaticGameData.Create();
+
+            gameRules = MockStaticGameData.CreateEasyGameRules();
+
+            objectBuilder = new GameObjectBuilder(this, world);
 
             creaturesByLine = new List<List<int>>();
             for (var i = 0; i < MagicNumbersGame.lineCount; i++)
@@ -28,8 +44,14 @@ namespace TdGame
 
         public void Dispose()
         {
+            staticGameData = null;
+
+            gameRules = null;
+
             objectBuilder.Dispose();
             objectBuilder = null;
+
+            gameInput = null;
 
             for (var i = 0; i < creaturesByLine.Count; i++)
                 creaturesByLine[i].Clear();

@@ -36,7 +36,6 @@ namespace TdGame
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Debug.Log($"GetMouseButtonDown 0");
                 var touch = new TouchObject
                 {
                     touchId = 0,

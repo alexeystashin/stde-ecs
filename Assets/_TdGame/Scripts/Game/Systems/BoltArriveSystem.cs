@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace TdGame
 {
-    sealed class BulletArriveSystem : IEcsInitSystem, IEcsRunSystem
+    sealed class BoltArriveSystem : IEcsInitSystem, IEcsRunSystem
     {
         EcsWorld world;
         EcsPool<Position> positionPool;
@@ -18,14 +18,13 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
-            var filter = world.Filter<Bullet>().Inc<Position>().Exc<DestroyMarker>().End();
+            var filter = world.Filter<Bolt>().Inc<Position>().Exc<DestroyMarker>().End();
 
             foreach (int entity in filter)
             {
                 ref var position = ref positionPool.Get(entity);
                 if (position.z >= MagicNumbersGame.bulletArriveZ)
                 {
-
                     destroyMarkerPool.Add(entity);
                 }
             }

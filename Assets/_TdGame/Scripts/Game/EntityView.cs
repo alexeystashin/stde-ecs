@@ -5,6 +5,6 @@ namespace TdGame
 {
     class EntityView : MonoBehaviour
     {
-        public int entityId;
+        public EcsPackedEntity entityId;
     }
 }

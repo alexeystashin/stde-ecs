@@ -9,6 +9,7 @@ namespace TdGame
         EcsWorld world;
         EcsPool<Turret> turretPool;
         EcsPool<TurretMotion> turretMotionPool;
+        EcsPool<TurretFireTrigger> turretFireTriggerPool;
         EcsPool<AnimationMarker> animationMarkerPool;
 
         public void Init(IEcsSystems systems)
@@ -17,6 +18,7 @@ namespace TdGame
             world = systems.GetWorld();
             turretPool = world.GetPool<Turret>();
             turretMotionPool = world.GetPool<TurretMotion>();
+            turretFireTriggerPool = world.GetPool<TurretFireTrigger>();
             animationMarkerPool = world.GetPool<AnimationMarker>();
         }
 
@@ -27,13 +29,32 @@ namespace TdGame
                 if (touch.isProcessed)
                     continue;
 
+                if (touch.isEnded)
+                {
+                    touch.isProcessed = true;
+
+                    var touchedTurretEntityPacked = GetTurretEntityUnderTouch(touch.startTouchPos);
+                    var currentTouchedTurretEntityPacked = GetTurretEntityUnderTouch(touch.currentTouchPos);
+
+                    if (!touchedTurretEntityPacked.Unpack(world, out var touchedTurretEntity))
+                        continue;
+
+                    if (!currentTouchedTurretEntityPacked.Unpack(world, out var currentTouchedTurretEntity)
+                        || touchedTurretEntity != currentTouchedTurretEntity)
+                        continue;
+
+                    turretFireTriggerPool.Add(touchedTurretEntity);
+
+                    Debug.Log($"Tap on {touchedTurretEntity}");
+                }
+
                 if (Vector3.Distance(touch.currentTouchPos, touch.startTouchPos) >= MagicNumbersGame.dragThresold * Screen.height)
                 {
                     touch.isProcessed = true;
 
-                    var firstTurretEntity = GetTurretEntityUnderTouch(touch.startTouchPos);
+                    var touchedTurretEntityPacked = GetTurretEntityUnderTouch(touch.startTouchPos);
 
-                    if (firstTurretEntity == 0)
+                    if (!touchedTurretEntityPacked.Unpack(world, out var touchedTurretEntity))
                         continue;
 
                     var delta = touch.currentTouchPos - touch.startTouchPos;
@@ -41,37 +62,39 @@ namespace TdGame
                     {
                         if (delta.x > 0)
                         {
-                            Debug.Log("Swipe Right");
+                            //Debug.Log("Swipe Right");
 
-                            ref var firstTurret = ref turretPool.Get(firstTurretEntity);
-                            if (firstTurret.lineId < MagicNumbersGame.lineCount - 1)
+                            ref var touchedTurret = ref turretPool.Get(touchedTurretEntity);
+                            if (touchedTurret.lineId < MagicNumbersGame.lineCount - 1)
                             {
-                                var secondTurretEntity = GetTurret(firstTurret.lineId + 1, firstTurret.rowId);
+                                var secondTurretEntityPacked = GetTurret(touchedTurret.lineId + 1, touchedTurret.rowId);
 
-                                if (!turretMotionPool.Has(firstTurretEntity) && !turretMotionPool.Has(secondTurretEntity))
+                                if (!turretMotionPool.Has(touchedTurretEntity)
+                                    && (!secondTurretEntityPacked.Unpack(world, out var secondTurretEntity) || !turretMotionPool.Has(secondTurretEntity)))
                                 {
-                                    MoveTurret(firstTurretEntity, firstTurret.lineId, firstTurret.rowId, firstTurret.lineId + 1, firstTurret.rowId);
+                                    MoveTurret(touchedTurretEntity, touchedTurret.lineId, touchedTurret.rowId, touchedTurret.lineId + 1, touchedTurret.rowId);
 
-                                    if (secondTurretEntity != 0)
-                                        MoveTurret(secondTurretEntity, firstTurret.lineId + 1, firstTurret.rowId, firstTurret.lineId, firstTurret.rowId);
+                                    if (secondTurretEntityPacked.Unpack(world, out secondTurretEntity))
+                                        MoveTurret(secondTurretEntity, touchedTurret.lineId + 1, touchedTurret.rowId, touchedTurret.lineId, touchedTurret.rowId);
                                 }
                             }
                         }
                         else
                         {
-                            Debug.Log("Swipe Left");
+                            //Debug.Log("Swipe Left");
 
-                            ref var firstTurret = ref turretPool.Get(firstTurretEntity);
-                            if (firstTurret.lineId > 0)
+                            ref var touchedTurret = ref turretPool.Get(touchedTurretEntity);
+                            if (touchedTurret.lineId > 0)
                             {
-                                var secondTurretEntity = GetTurret(firstTurret.lineId - 1, firstTurret.rowId);
+                                var secondTurretEntityPacked = GetTurret(touchedTurret.lineId - 1, touchedTurret.rowId);
 
-                                if (!turretMotionPool.Has(firstTurretEntity) && !turretMotionPool.Has(secondTurretEntity))
+                                if (!turretMotionPool.Has(touchedTurretEntity)
+                                    && (!secondTurretEntityPacked.Unpack(world, out var secondTurretEntity) || !turretMotionPool.Has(secondTurretEntity)))
                                 {
-                                    MoveTurret(firstTurretEntity, firstTurret.lineId, firstTurret.rowId, firstTurret.lineId - 1, firstTurret.rowId);
+                                    MoveTurret(touchedTurretEntity, touchedTurret.lineId, touchedTurret.rowId, touchedTurret.lineId - 1, touchedTurret.rowId);
 
-                                    if (secondTurretEntity != 0)
-                                        MoveTurret(secondTurretEntity, firstTurret.lineId - 1, firstTurret.rowId, firstTurret.lineId, firstTurret.rowId);
+                                    if (secondTurretEntityPacked.Unpack(world, out secondTurretEntity))
+                                        MoveTurret(secondTurretEntity, touchedTurret.lineId - 1, touchedTurret.rowId, touchedTurret.lineId, touchedTurret.rowId);
                                 }
                             }
                         }
@@ -92,7 +115,7 @@ namespace TdGame
 
         void MoveTurret(int turretEntity, int fromLineId, int fromRowId, int toLineId, int toRowId)
         {
-            Debug.Log($"MoveTurret {turretEntity} from {fromLineId}:{fromRowId} to {toLineId}:{toRowId}");
+            //Debug.Log($"MoveTurret {turretEntity} from {fromLineId}:{fromRowId} to {toLineId}:{toRowId}");
 
             ref var turretMotion = ref turretMotionPool.Add(turretEntity);
             turretMotion.timeTotal = MagicNumbersGame.turretMoveTime;
@@ -105,42 +128,42 @@ namespace TdGame
             animationMarker.usageCounter++;
         }
 
-        int GetTurretEntityUnderTouch(Vector3 touchPos)
+        EcsPackedEntity GetTurretEntityUnderTouch(Vector3 touchPos)
         {
             Ray rayOrigin = Camera.main.ScreenPointToRay(touchPos);
 
             if (Physics.Raycast(rayOrigin, out var hitInfo))
             {
-                Debug.Log("Raycast hit object " + hitInfo.transform.name + " at the position of " + hitInfo.transform.position);
+                //Debug.Log("Raycast hit object " + hitInfo.transform.name + " at the position of " + hitInfo.transform.position);
 
-                var entityId = 0;
+                EcsPackedEntity entityIdPacked = default;
                 var entityView = hitInfo.transform.GetComponentInParent<EntityView>();
                 if (entityView != null)
-                    entityId = entityView.entityId;
+                    entityIdPacked = entityView.entityId;
 
-                if (turretPool.Has(entityId))
+                if (entityIdPacked.Unpack(world, out var entityId) && turretPool.Has(entityId))
                 {
-                    return entityId;
+                    return entityIdPacked;
                 }
             }
 
-            return 0;
+            return default;
         }
 
-        int GetTurret(int lineId, int rowId)
+        EcsPackedEntity GetTurret(int lineId, int rowId)
         {
             if (lineId < 0 || lineId >= MagicNumbersGame.lineCount)
-                return 0;
+                return default;
 
             for(var i = 0; i < context.turretsByLine[lineId].Count; i++)
             {
                 var turretEntity = context.turretsByLine[lineId][i];
                 ref var turret = ref turretPool.Get(turretEntity);
                 if (turret.rowId == rowId)
-                    return turretEntity;
+                    return world.PackEntity(turretEntity);
             }
 
-            return 0;
+            return default;
         }
     }
 }

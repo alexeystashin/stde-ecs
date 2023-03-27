@@ -1,12 +1,13 @@
 using Leopotam.EcsLite;
-using UnityEngine;
 
 namespace TdGame
 {
-    sealed class BulletCollisionSystem : IEcsInitSystem, IEcsRunSystem
+    sealed class BoltCollisionSystem : IEcsInitSystem, IEcsRunSystem
     {
         GameContext context;
         EcsWorld world;
+        EcsPool<Bolt> boltPool;
+        EcsPool<BoltTrigger> boltTriggerPool;
         EcsPool<Position> positionPool;
         EcsPool<Damage> damagePool;
         EcsPool<DestroyMarker> destroyMarkerPool;
@@ -15,6 +16,8 @@ namespace TdGame
         {
             context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
+            boltPool = world.GetPool<Bolt>();
+            boltTriggerPool = world.GetPool<BoltTrigger>();
             positionPool = world.GetPool<Position>();
             damagePool = world.GetPool<Damage>();
             destroyMarkerPool = world.GetPool<DestroyMarker>();
@@ -22,10 +25,11 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
-            var filter = world.Filter<Bullet>().Inc<Position>().End();
+            var filter = world.Filter<Bolt>().Inc<Position>().End();
 
             foreach (int entity in filter)
             {
+                ref var bolt = ref boltPool.Get(entity);
                 ref var position = ref positionPool.Get(entity);
                 var creaturesByLine = context.creaturesByLine[position.lineId];
                 for (var i = 0; i < creaturesByLine.Count; i++)
@@ -37,16 +41,8 @@ namespace TdGame
                     ref var creaturePosition = ref positionPool.Get(creatureEntity);
                     if (position.z >= creaturePosition.z)
                     {
-                        if (damagePool.Has(creatureEntity))
-                        {
-                            ref var creatureDamage = ref damagePool.Get(creatureEntity);
-                            creatureDamage.damage += MagicNumbersGame.bulletHitPower;
-                        }
-                        else
-                        {
-                            ref var creatureDamage = ref damagePool.Add(creatureEntity);
-                            creatureDamage.damage += MagicNumbersGame.bulletHitPower;
-                        }
+                        ref var boltTrigger = ref boltTriggerPool.Add(entity);
+                        boltTrigger.targetEntity = world.PackEntity(creatureEntity);
 
                         destroyMarkerPool.Add(entity);
                         break;

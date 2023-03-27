@@ -45,7 +45,7 @@ namespace TdGame
                 // todo: move to separate system
                 if (turretMotion.time >= turretMotion.timeTotal)
                 {
-                    Debug.Log($"MoveTurret finished {entity} from {turretMotion.fromLineId}:{turretMotion.fromRowId} to {turretMotion.toLineId}:{turretMotion.toRowId}");
+                    //Debug.Log($"MoveTurret finished {entity} from {turretMotion.fromLineId}:{turretMotion.fromRowId} to {turretMotion.toLineId}:{turretMotion.toRowId}");
                     turret.lineId = turretMotion.toLineId;
                     turret.rowId = turretMotion.toRowId;
 

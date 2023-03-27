@@ -4,8 +4,6 @@ namespace TdGame
 {
     struct Spawner
     {
-        public float cooldown;
-
-        public float creatureVelocityZ;
+        public SpawnerTemplate template;
     }
 }

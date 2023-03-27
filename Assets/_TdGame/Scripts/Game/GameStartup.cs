@@ -9,7 +9,8 @@ namespace TdGame
         GameContext gameContext;
         IEcsSystems systems;
 
-        void Start() {
+        void Start()
+        {
             world = new EcsWorld();
 
             gameContext = new GameContext(world);
@@ -18,23 +19,35 @@ namespace TdGame
             systems = new EcsSystems(world, gameContext);
             systems
                 // register your systems here
+                .Add(new LifetimeSystem())
+                .Add(new CooldownSystem())
                 .Add(new SpawnCreatureSystem())
                 .Add(new UpdateCreatureListSystem())
                 .Add(new UpdateTurretListSystem())
                 .Add(new PlayerInputSystem())
-                .Add(new FireTurretSystem())
+                .Add(new TurretFireTriggerByCooldownSystem())
+                .Add(new TurretFireSystem())
                 .Add(new MoveTurretSystem())
                 .Add(new MoveEntitySystem())
                 .Add(new UpdateViewPositionSystem())
-                .Add(new BulletCollisionSystem())
+                .Add(new BoltCollisionSystem())
+                .Add(new ApplyAreaBoltSystem())
+                .Add(new ApplyHitBoltSystem())
+                .Add(new ApplyHitAreaSystem())
                 .Add(new ApplyDamageSystem())
                 .Add(new CreatureArriveSystem())
-                .Add(new BulletArriveSystem())
+                .Add(new CheckGameCompleteSystem())
+                .Add(new WaveSystem())
+                .Add(new FinishGameSystem())
+                .Add(new BoltArriveSystem())
+                .Add(new RemoveAreaTriggerSystem())
+                .Add(new RemoveBoltTriggerSystem())
+                .Add(new RemoveTurretFireTriggerSystem())
                 .Add(new DestroyViewSystem())
                 .Add(new DestroyEntitySystem())
                 
                 // register additional worlds here, for example:
-                // .AddWorld(new EcsWorld(), "events")
+                .AddWorld(new EcsWorld(), "events")
 #if UNITY_EDITOR
                 // add debug systems for custom worlds here, for example:
                 // .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem("events"))
@@ -46,13 +59,18 @@ namespace TdGame
             gameContext.objectBuilder.CreateInitialEntities();
         }
 
-        void Update() {
+        void Update()
+        {
+            if (gameContext.isGameFinished)
+                return;
+
             // process systems here.
             if (systems != null)
                 systems.Run();
         }
 
-        void OnDestroy() {
+        void OnDestroy()
+        {
             if (systems != null) {
                 // list of custom worlds will be cleared
                 // during IEcsSystems.Destroy(). so, you
