@@ -25,6 +25,7 @@ namespace TdGame
         EcsPool<Lifetime> lifetimePool;
         EcsPool<Cooldown> cooldownPool;
         EcsPool<View> viewPool;
+        EcsPool<TurretUi> turretUiPool;
 
         public GameObjectBuilder(GameContext aContext, EcsWorld aWorld)
         {
@@ -46,6 +47,7 @@ namespace TdGame
             lifetimePool = world.GetPool<Lifetime>();
             cooldownPool = world.GetPool<Cooldown>();
             viewPool = world.GetPool<View>();
+            turretUiPool = world.GetPool<TurretUi>();
         }
 
         public void CreateInitialEntities()
@@ -116,6 +118,14 @@ namespace TdGame
 
             ref var view = ref viewPool.Add(entity);
             view.viewObject = viewObject;
+
+            var hudObject = GameObject.Instantiate(PrefabCache.instance.GetPrefab(GamePrefabPath.turretHud),
+                GameUtils.PositionToVector3(position.lineId, position.x, position.z),
+                Quaternion.identity, context.gameUi.hudContiner);
+            var hud = hudObject.GetComponent<TurretHud>();
+
+            ref var turretUi = ref turretUiPool.Add(entity);
+            turretUi.hud = hud;
         }
 
         public void CreateCreature(CreatureTemplate template, int lineId, float z)
@@ -123,6 +133,7 @@ namespace TdGame
             int entity = world.NewEntity();
 
             ref var creature = ref creaturePool.Add(entity);
+            creature.killScore = template.score;
 
             ref var position = ref positionPool.Add(entity);
             position.lineId = lineId;

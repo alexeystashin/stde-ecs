@@ -4,16 +4,19 @@ namespace TdGame
 {
     static class GamePrefabPath
     {
-        public const string MachineGunTower = "Turrets/MachineGun";
-        public const string RocketTower = "Turrets/RocketTurret";
+        public const string machineGunTower = "Turrets/MachineGun";
+        public const string rocketTower = "Turrets/RocketTurret";
 
-        public const string CreepCreature = "Enemies/Creature";
-        public const string FastCreature = "Enemies/FastCreature";
-        public const string BigCreature = "Enemies/BigCreature";
+        public const string creepCreature = "Enemies/Creature";
+        public const string fastCreature = "Enemies/FastCreature";
+        public const string bigCreature = "Enemies/BigCreature";
 
-        public const string BulletBolt = "Bolts/Bullet";
-        public const string RocketBolt = "Bolts/Rocket";
+        public const string bulletBolt = "Bolts/Bullet";
+        public const string rocketBolt = "Bolts/Rocket";
 
-        public const string ExplosionFx = "Fx/ExplosionFx";
+        public const string explosionFx = "Fx/ExplosionFx";
+
+        public const string gameResultWindow = "UI/GameResultWindow";
+        public const string turretHud = "UI/TurretHud";
     }
 }

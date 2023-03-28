@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace TdGame
 {
-    sealed class DestroyViewSystem : IEcsInitSystem, IEcsRunSystem
+    sealed class DestroyEntityViewSystem : IEcsInitSystem, IEcsRunSystem
     {
         EcsWorld world;
         EcsPool<View> viewPool;

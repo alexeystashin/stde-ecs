@@ -66,7 +66,7 @@ namespace TdGame
             var tower = new TowerTemplate
             {
                 id = TowerTemplateId.MachineGun.ToString(),
-                prefabPath = GamePrefabPath.MachineGunTower,
+                prefabPath = GamePrefabPath.machineGunTower,
                 health = 100,
                 size = 3,
                 attackBoltId = BoltTemplateId.Bullet.ToString(),
@@ -78,11 +78,11 @@ namespace TdGame
             tower = new TowerTemplate
             {
                 id = TowerTemplateId.Rocket.ToString(),
-                prefabPath = GamePrefabPath.RocketTower,
+                prefabPath = GamePrefabPath.rocketTower,
                 health = 100,
                 size = 3,
                 attackBoltId = BoltTemplateId.Rocket.ToString(),
-                attackCooldown = 10f,
+                attackCooldown = 5f,
             };
             staticGameData.towers.Add(tower.id, tower);
 
@@ -91,7 +91,7 @@ namespace TdGame
             var creature = new CreatureTemplate
             {
                 id = CreatureTemplateId.Creep.ToString(),
-                prefabPath = GamePrefabPath.CreepCreature,
+                prefabPath = GamePrefabPath.creepCreature,
                 health = 3,
                 size = 1,
                 moveSpeed = 1.5f,
@@ -104,7 +104,7 @@ namespace TdGame
             creature = new CreatureTemplate
             {
                 id = CreatureTemplateId.FastCreep.ToString(),
-                prefabPath = GamePrefabPath.FastCreature,
+                prefabPath = GamePrefabPath.fastCreature,
                 health = 5,
                 size = 1,
                 moveSpeed = 2f,
@@ -117,10 +117,10 @@ namespace TdGame
             creature = new CreatureTemplate
             {
                 id = CreatureTemplateId.Tank.ToString(),
-                prefabPath = GamePrefabPath.BigCreature,
-                health = 30,
+                prefabPath = GamePrefabPath.bigCreature,
+                health = 20,
                 size = 2,
-                moveSpeed = 1f,
+                moveSpeed = 0.75f,
                 attackPower = 5,
                 attackCooldown = 2f,
                 score = 100
@@ -132,7 +132,7 @@ namespace TdGame
             var area = new AreaTemplate
             {
                 id = AreaTemplateId.Explosion.ToString(),
-                prefabPath = GamePrefabPath.ExplosionFx,
+                prefabPath = GamePrefabPath.explosionFx,
                 attackPower = 10,
                 actionType = AreaActionTypeId.Attack.ToString(),
                 size = 3,
@@ -146,7 +146,7 @@ namespace TdGame
             var bolt = new BoltTemplate
             {
                 id = BoltTemplateId.Bullet.ToString(),
-                prefabPath = GamePrefabPath.BulletBolt,
+                prefabPath = GamePrefabPath.bulletBolt,
                 size = 0.25f,
                 moveSpeed = 30,
                 //attackAreaId = null,
@@ -159,7 +159,7 @@ namespace TdGame
             bolt = new BoltTemplate
             {
                 id = BoltTemplateId.Rocket.ToString(),
-                prefabPath = GamePrefabPath.RocketBolt,
+                prefabPath = GamePrefabPath.rocketBolt,
                 size = 0.25f,
                 moveSpeed = 15,
                 attackAreaId = AreaTemplateId.Explosion.ToString(),

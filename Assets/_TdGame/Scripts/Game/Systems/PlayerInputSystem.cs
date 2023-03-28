@@ -45,7 +45,7 @@ namespace TdGame
 
                     turretFireTriggerPool.Add(touchedTurretEntity);
 
-                    Debug.Log($"Tap on {touchedTurretEntity}");
+                    //Debug.Log($"Tap on {touchedTurretEntity}");
                 }
 
                 if (Vector3.Distance(touch.currentTouchPos, touch.startTouchPos) >= MagicNumbersGame.dragThresold * Screen.height)

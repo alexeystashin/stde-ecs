@@ -5,18 +5,25 @@ namespace TdGame
 {
     sealed class GameStartup : MonoBehaviour
     {
+        [SerializeField] Canvas canvas;
+
         EcsWorld world;
-        GameContext gameContext;
+        GameContext context;
         IEcsSystems systems;
 
         void Start()
         {
             world = new EcsWorld();
 
-            gameContext = new GameContext(world);
-            gameContext.gameInput = gameObject.AddComponent<GameInput>();
+            context = new GameContext(world);
 
-            systems = new EcsSystems(world, gameContext);
+            // todo: change references initialization
+            context.gameInput = gameObject.AddComponent<GameInput>(); // todo: create as separate GameObject
+            context.gameUi = GameObject.FindAnyObjectByType<GameUi>(); // todo: create from prefab
+            context.camera = Camera.main;
+            context.canvas = GameObject.FindAnyObjectByType<Canvas>();
+
+            systems = new EcsSystems(world, context);
             systems
                 // register your systems here
                 .Add(new LifetimeSystem())
@@ -29,7 +36,8 @@ namespace TdGame
                 .Add(new TurretFireSystem())
                 .Add(new MoveTurretSystem())
                 .Add(new MoveEntitySystem())
-                .Add(new UpdateViewPositionSystem())
+                .Add(new UpdateEntityViewPositionSystem())
+                .Add(new UpdateTurretHudSystem())
                 .Add(new BoltCollisionSystem())
                 .Add(new ApplyAreaBoltSystem())
                 .Add(new ApplyHitBoltSystem())
@@ -38,12 +46,15 @@ namespace TdGame
                 .Add(new CreatureArriveSystem())
                 .Add(new CheckGameCompleteSystem())
                 .Add(new WaveSystem())
+                .Add(new UpdateGameUiSystem())
+                .Add(new AddScoreForKillSystem())
                 .Add(new FinishGameSystem())
                 .Add(new BoltArriveSystem())
                 .Add(new RemoveAreaTriggerSystem())
                 .Add(new RemoveBoltTriggerSystem())
                 .Add(new RemoveTurretFireTriggerSystem())
-                .Add(new DestroyViewSystem())
+                .Add(new DestroyEntityUiSystem())
+                .Add(new DestroyEntityViewSystem())
                 .Add(new DestroyEntitySystem())
                 
                 // register additional worlds here, for example:
@@ -56,12 +67,24 @@ namespace TdGame
                 .Init();
 
             // create initial entities
-            gameContext.objectBuilder.CreateInitialEntities();
+            context.objectBuilder.CreateInitialEntities();
+
+            // calculate wave time (duplicate in GameStartup & WaveSystem!)
+            context.currentWaveTime = 0;
+            context.currentWaveTimeTotal = 0;
+            foreach (var line in context.gameRules.waves[context.currentWave].lineSpawners)
+            {
+                foreach (var spawnerTemplate in line)
+                {
+                    context.currentWaveTimeTotal = Mathf.Max(context.currentWaveTimeTotal,
+                        spawnerTemplate.delay + spawnerTemplate.lifetime);
+                }
+            }
         }
 
         void Update()
         {
-            if (gameContext.isGameFinished)
+            if (context.isGameFinished)
                 return;
 
             // process systems here.
@@ -87,10 +110,10 @@ namespace TdGame
                 world = null;
             }
 
-            if (gameContext != null)
+            if (context != null)
             {
-                gameContext.Dispose();
-                gameContext = null;
+                context.Dispose();
+                context = null;
             }
         }
     }

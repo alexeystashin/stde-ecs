@@ -1,6 +1,7 @@
 using Leopotam.EcsLite;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace TdGame
 {
@@ -12,10 +13,17 @@ namespace TdGame
         public GameObjectBuilder objectBuilder;
 
         public GameInput gameInput;
+        public GameUi gameUi;
+        public Camera camera;
+        public Canvas canvas;
 
         // game state
 
         public int currentWave;
+        public float currentWaveTime;
+        public float currentWaveTimeTotal;
+
+        public int score;
 
         public bool isGameFinished;
         public bool isWin;

@@ -37,7 +37,7 @@ namespace TdGame
 
                     if (creaturePosition.lineId == position.lineId && Mathf.Abs(creaturePosition.z - position.z) <= hitArea.size * 0.5f)
                     {
-                        Debug.Log($"Hit creature {creatureEntity} for {hitArea.hitPower} points");
+                        //Debug.Log($"Hit creature {creatureEntity} for {hitArea.hitPower} points");
                         ref var targetDamage = ref damagePool.GetOrAdd(creatureEntity);
                         targetDamage.damage += hitArea.hitPower;
                     }

@@ -2,7 +2,7 @@ using Leopotam.EcsLite;
 
 namespace TdGame
 {
-    sealed class UpdateViewPositionSystem : IEcsInitSystem, IEcsRunSystem
+    sealed class UpdateEntityViewPositionSystem : IEcsInitSystem, IEcsRunSystem
     {
         EcsWorld world;
         EcsPool<View> viewPool;

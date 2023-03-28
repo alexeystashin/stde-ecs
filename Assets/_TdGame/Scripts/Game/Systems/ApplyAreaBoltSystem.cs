@@ -33,7 +33,7 @@ namespace TdGame
                 if (!boltTrigger.targetEntity.Unpack(world, out var targetEntity))
                     continue;
 
-                Debug.Log($"Area spawned {areaBolt.areaTemplateId}");
+                //Debug.Log($"Area spawned {areaBolt.areaTemplateId}");
                 var areaTemplate = context.staticGameData.areas[areaBolt.areaTemplateId];
                 context.objectBuilder.CreateArea(areaTemplate, position.lineId, position.z);
             }

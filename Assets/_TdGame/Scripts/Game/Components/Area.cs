@@ -4,7 +4,6 @@ namespace TdGame
 {
     struct Area
     {
-        public AreaTemplate template;
     }
 
     struct HitArea
