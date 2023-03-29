@@ -86,6 +86,28 @@ namespace TdGame
             };
             staticGameData.towers.Add(tower.id, tower);
 
+            tower = new TowerTemplate
+            {
+                id = TowerTemplateId.Freezer.ToString(),
+                prefabPath = GamePrefabPath.freezerTower,
+                health = 100,
+                size = 3,
+                attackBoltId = BoltTemplateId.Ice.ToString(),
+                attackCooldown = 7f,
+            };
+            staticGameData.towers.Add(tower.id, tower);
+
+            tower = new TowerTemplate
+            {
+                id = TowerTemplateId.Poisoner.ToString(),
+                prefabPath = GamePrefabPath.poisonerTower,
+                health = 100,
+                size = 3,
+                attackBoltId = BoltTemplateId.Poison.ToString(),
+                attackCooldown = 10f,
+            };
+            staticGameData.towers.Add(tower.id, tower);
+
             // creatures
 
             var creature = new CreatureTemplate
@@ -132,12 +154,36 @@ namespace TdGame
             var area = new AreaTemplate
             {
                 id = AreaTemplateId.Explosion.ToString(),
-                prefabPath = GamePrefabPath.explosionFx,
+                prefabPath = GamePrefabPath.explosionArea,
                 attackPower = 10,
                 actionType = AreaActionTypeId.Attack.ToString(),
                 size = 3,
                 actionCooldown = 999,
                 lifetime = 1.0f,
+            };
+            staticGameData.areas.Add(area.id, area);
+
+            area = new AreaTemplate
+            {
+                id = AreaTemplateId.Ice.ToString(),
+                prefabPath = GamePrefabPath.iceArea,
+                //attackPower = 0,
+                actionType = AreaActionTypeId.Freeze.ToString(),
+                size = 3,
+                actionCooldown = 1.0f,
+                lifetime = 5.0f,
+            };
+            staticGameData.areas.Add(area.id, area);
+
+            area = new AreaTemplate
+            {
+                id = AreaTemplateId.Poison.ToString(),
+                prefabPath = GamePrefabPath.poisonArea,
+                attackPower = 2f,
+                actionType = AreaActionTypeId.Attack.ToString(),
+                size = 4,
+                actionCooldown = 0.5f,
+                lifetime = 5.0f,
             };
             staticGameData.areas.Add(area.id, area);
 
@@ -161,8 +207,34 @@ namespace TdGame
                 id = BoltTemplateId.Rocket.ToString(),
                 prefabPath = GamePrefabPath.rocketBolt,
                 size = 0.25f,
-                moveSpeed = 15,
+                moveSpeed = 10,
                 attackAreaId = AreaTemplateId.Explosion.ToString(),
+                //attackPower = 0,
+                //pushDistance = 0.5f,
+                //pushSize = 1,
+            };
+            staticGameData.bolts.Add(bolt.id, bolt);
+
+            bolt = new BoltTemplate
+            {
+                id = BoltTemplateId.Ice.ToString(),
+                prefabPath = GamePrefabPath.iceBolt,
+                size = 0.25f,
+                moveSpeed = 5,
+                attackAreaId = AreaTemplateId.Ice.ToString(),
+                //attackPower = 0,
+                //pushDistance = 0.5f,
+                //pushSize = 1,
+            };
+            staticGameData.bolts.Add(bolt.id, bolt);
+
+            bolt = new BoltTemplate
+            {
+                id = BoltTemplateId.Poison.ToString(),
+                prefabPath = GamePrefabPath.poisonBolt,
+                size = 0.25f,
+                moveSpeed = 5,
+                attackAreaId = AreaTemplateId.Poison.ToString(),
                 //attackPower = 0,
                 //pushDistance = 0.5f,
                 //pushSize = 1,
@@ -177,12 +249,13 @@ namespace TdGame
             var rules = new GameRules
             {
                 waves = new List<WaveTemplate>(),
+                towerLines = 1,
                 playerTowers = new List<string>()
             };
 
-            rules.playerTowers.Add(TowerTemplateId.Rocket.ToString());
             rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
-            rules.playerTowers.Add(TowerTemplateId.Rocket.ToString());
+            rules.playerTowers.Add(TowerTemplateId.Poisoner.ToString());
+            rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
 
             const float cooldownChangePerWave = -0.1f;
 
@@ -201,10 +274,10 @@ namespace TdGame
                     var spawnerTemplate = new SpawnerTemplate
                     {
                         creatureId = CreatureTemplateId.Creep.ToString(),
-                        delay = 0,
+                        delay = 3,
                         lifetime = 10,
-                        cooldownMin = 2.0f + w * cooldownChangePerWave,
-                        cooldownMax = 3.0f + w * cooldownChangePerWave
+                        cooldownMin = 3.0f + w * cooldownChangePerWave,
+                        cooldownMax = 4.0f + w * cooldownChangePerWave
                     };
                     spawners.Add(spawnerTemplate);
 
@@ -237,22 +310,23 @@ namespace TdGame
             return rules;
         }
 
-        public static GameRules CreateHardGameRules()
+        public static GameRules CreateMediumGameRules()
         {
             var rules = new GameRules
             {
                 waves = new List<WaveTemplate>(),
+                towerLines = 2,
                 playerTowers = new List<string>()
             };
 
             rules.playerTowers.Add(TowerTemplateId.Rocket.ToString());
             rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
-            rules.playerTowers.Add(TowerTemplateId.Rocket.ToString());
+            rules.playerTowers.Add(TowerTemplateId.Freezer.ToString());
             rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
             rules.playerTowers.Add(TowerTemplateId.Rocket.ToString());
             rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
 
-            const float cooldownChangePerWave = -0.2f;
+            const float cooldownChangePerWave = -0.05f;
 
             for (var w = 0; w < MagicNumbersGame.hardWavesCount; w++)
             {
@@ -269,10 +343,10 @@ namespace TdGame
                     var spawnerTemplate = new SpawnerTemplate
                     {
                         creatureId = CreatureTemplateId.Creep.ToString(),
-                        delay = 0,
-                        lifetime = 10,
-                        cooldownMin = 2.0f + w * cooldownChangePerWave,
-                        cooldownMax = 3.0f + w * cooldownChangePerWave
+                        delay = 3,
+                        lifetime = 20,
+                        cooldownMin = 3.0f + w * cooldownChangePerWave,
+                        cooldownMax = 4.0f + w * cooldownChangePerWave
                     };
                     spawners.Add(spawnerTemplate);
 
@@ -280,7 +354,17 @@ namespace TdGame
                     {
                         creatureId = CreatureTemplateId.FastCreep.ToString(),
                         delay = 10,
-                        lifetime = 10,
+                        lifetime = 15,
+                        cooldownMin = 5.0f + w * cooldownChangePerWave,
+                        cooldownMax = 10 + w * cooldownChangePerWave
+                    };
+                    spawners.Add(spawnerTemplate);
+
+                    spawnerTemplate = new SpawnerTemplate
+                    {
+                        creatureId = CreatureTemplateId.Tank.ToString(),
+                        delay = 10,
+                        lifetime = 15,
                         cooldownMin = 10.0f + w * cooldownChangePerWave,
                         cooldownMax = 15.0f + w * cooldownChangePerWave
                     };
@@ -289,10 +373,89 @@ namespace TdGame
                     spawnerTemplate = new SpawnerTemplate
                     {
                         creatureId = CreatureTemplateId.Tank.ToString(),
+                        delay = 5,
+                        lifetime = 20,
+                        cooldownMin = 15.0f + w * cooldownChangePerWave,
+                        cooldownMax = 20.0f + w * cooldownChangePerWave
+                    };
+                    spawners.Add(spawnerTemplate);
+
+                    waveTemplate.lineSpawners.Add(spawners);
+                }
+
+                rules.waves.Add(waveTemplate);
+            }
+
+            return rules;
+        }
+
+        public static GameRules CreateHardGameRules()
+        {
+            var rules = new GameRules
+            {
+                waves = new List<WaveTemplate>(),
+                towerLines = 2,
+                playerTowers = new List<string>()
+            };
+
+            rules.playerTowers.Add(TowerTemplateId.Freezer.ToString());
+            rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
+            rules.playerTowers.Add(TowerTemplateId.Rocket.ToString());
+            rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
+            rules.playerTowers.Add(TowerTemplateId.Poisoner.ToString());
+            rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
+
+            const float cooldownChangePerWave = -0.05f;
+
+            for (var w = 0; w < MagicNumbersGame.hardWavesCount; w++)
+            {
+                var waveTemplate = new WaveTemplate
+                {
+                    lineSpawners = new List<List<SpawnerTemplate>>()
+                };
+
+                for (var i = 0; i < MagicNumbersGame.lineCount; i++)
+                {
+                    var spawners = new List<SpawnerTemplate>();
+
+                    // todo: fake data
+                    var spawnerTemplate = new SpawnerTemplate
+                    {
+                        creatureId = CreatureTemplateId.Creep.ToString(),
+                        delay = 3,
+                        lifetime = 20,
+                        cooldownMin = 3.0f + w * cooldownChangePerWave,
+                        cooldownMax = 4.0f + w * cooldownChangePerWave
+                    };
+                    spawners.Add(spawnerTemplate);
+
+                    spawnerTemplate = new SpawnerTemplate
+                    {
+                        creatureId = CreatureTemplateId.FastCreep.ToString(),
                         delay = 10,
-                        lifetime = 10,
+                        lifetime = 15,
+                        cooldownMin = 5.0f + w * cooldownChangePerWave,
+                        cooldownMax = 10 + w * cooldownChangePerWave
+                    };
+                    spawners.Add(spawnerTemplate);
+
+                    spawnerTemplate = new SpawnerTemplate
+                    {
+                        creatureId = CreatureTemplateId.Tank.ToString(),
+                        delay = 10,
+                        lifetime = 15,
                         cooldownMin = 10.0f + w * cooldownChangePerWave,
                         cooldownMax = 15.0f + w * cooldownChangePerWave
+                    };
+                    spawners.Add(spawnerTemplate);
+
+                    spawnerTemplate = new SpawnerTemplate
+                    {
+                        creatureId = CreatureTemplateId.Tank.ToString(),
+                        delay = 5,
+                        lifetime = 20,
+                        cooldownMin = 15.0f + w * cooldownChangePerWave,
+                        cooldownMax = 20.0f + w * cooldownChangePerWave
                     };
                     spawners.Add(spawnerTemplate);
 

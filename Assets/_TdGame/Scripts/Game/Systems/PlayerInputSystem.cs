@@ -24,6 +24,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (context.isGameFinished)
+                return;
+
             foreach (var touch in context.gameInput.touches)
             {
                 if (touch.isProcessed)
@@ -102,9 +105,43 @@ namespace TdGame
                     else
                     {
                         if (delta.y > 0)
-                            Debug.Log("Swipe Up");
+                        {
+                            //Debug.Log("Swipe Up");
+
+                            ref var touchedTurret = ref turretPool.Get(touchedTurretEntity);
+                            if (touchedTurret.rowId < context.gameRules.towerLines - 1)
+                            {
+                                var secondTurretEntityPacked = GetTurret(touchedTurret.lineId, touchedTurret.rowId + 1);
+
+                                if (!turretMotionPool.Has(touchedTurretEntity)
+                                    && (!secondTurretEntityPacked.Unpack(world, out var secondTurretEntity) || !turretMotionPool.Has(secondTurretEntity)))
+                                {
+                                    MoveTurret(touchedTurretEntity, touchedTurret.lineId, touchedTurret.rowId, touchedTurret.lineId, touchedTurret.rowId + 1);
+
+                                    if (secondTurretEntityPacked.Unpack(world, out secondTurretEntity))
+                                        MoveTurret(secondTurretEntity, touchedTurret.lineId, touchedTurret.rowId + 1, touchedTurret.lineId, touchedTurret.rowId);
+                                }
+                            }
+                        }
                         else
-                            Debug.Log("Swipe Down");
+                        {
+                            //Debug.Log("Swipe Down");
+
+                            ref var touchedTurret = ref turretPool.Get(touchedTurretEntity);
+                            if (touchedTurret.rowId > 0)
+                            {
+                                var secondTurretEntityPacked = GetTurret(touchedTurret.lineId, touchedTurret.rowId - 1);
+
+                                if (!turretMotionPool.Has(touchedTurretEntity)
+                                    && (!secondTurretEntityPacked.Unpack(world, out var secondTurretEntity) || !turretMotionPool.Has(secondTurretEntity)))
+                                {
+                                    MoveTurret(touchedTurretEntity, touchedTurret.lineId, touchedTurret.rowId, touchedTurret.lineId, touchedTurret.rowId - 1);
+
+                                    if (secondTurretEntityPacked.Unpack(world, out secondTurretEntity))
+                                        MoveTurret(secondTurretEntity, touchedTurret.lineId, touchedTurret.rowId - 1, touchedTurret.lineId, touchedTurret.rowId);
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -130,7 +167,7 @@ namespace TdGame
 
         EcsPackedEntity GetTurretEntityUnderTouch(Vector3 touchPos)
         {
-            Ray rayOrigin = Camera.main.ScreenPointToRay(touchPos);
+            Ray rayOrigin = context.gameCamera.ScreenPointToRay(touchPos);
 
             if (Physics.Raycast(rayOrigin, out var hitInfo))
             {

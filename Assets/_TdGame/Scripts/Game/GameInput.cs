@@ -24,12 +24,13 @@ namespace TdGame
 
         void OnEnable ()
         {
-            Debug.Log($"GameInput.OnEnable");
+            //Debug.Log($"GameInput.OnEnable");
         }
         
         void OnDisable ()
         {
-            Debug.Log($"GameInput.OnDisable");
+            //Debug.Log($"GameInput.OnDisable");
+            touches.Clear();
         }
 
         void Update()

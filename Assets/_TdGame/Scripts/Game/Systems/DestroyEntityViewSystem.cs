@@ -1,3 +1,4 @@
+using Common;
 using Leopotam.EcsLite;
 using UnityEngine;
 
@@ -21,7 +22,16 @@ namespace TdGame
             foreach (int entity in filter)
             {
                 ref var view = ref viewPool.Get(entity);
-                GameObject.Destroy(view.viewObject);
+                if (view.viewObject != null)
+                {
+                    var detachParticles = view.viewObject.GetComponent<DetachParticles>();
+                    if (detachParticles != null)
+                    {
+                        detachParticles.Detach();
+                    }
+
+                    GameObject.Destroy(view.viewObject);
+                }
                 view.viewObject = null;
                 viewPool.Del(entity);
             }

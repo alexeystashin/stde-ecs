@@ -23,6 +23,10 @@ namespace TdGame
             {
                 ref var view = ref viewPool.Get(entity);
                 ref var position = ref positionPool.Get(entity);
+
+                if (view.viewObject == null)
+                    continue;
+
                 view.viewObject.transform.position = GameUtils.PositionToVector3(position.lineId, position.x, position.z);
             }
         }

@@ -8,6 +8,7 @@ namespace TdGame
         EcsWorld world;
         EcsPool<HitArea> hitAreaPool;
         EcsPool<AreaTrigger> areaTriggerPool;
+        EcsPool<Cooldown> cooldownPool;
         EcsPool<Position> positionPool;
         EcsPool<Damage> damagePool;
 
@@ -16,6 +17,7 @@ namespace TdGame
             world = systems.GetWorld();
             hitAreaPool = world.GetPool<HitArea>();
             areaTriggerPool = world.GetPool<AreaTrigger>();
+            cooldownPool = world.GetPool<Cooldown>();
             positionPool = world.GetPool<Position>();
             damagePool = world.GetPool<Damage>();
         }
@@ -29,7 +31,10 @@ namespace TdGame
             {
                 ref var hitArea = ref hitAreaPool.GetOrAdd(entity);
                 ref var areaTrigger = ref areaTriggerPool.Get(entity);
+                ref var cooldown = ref cooldownPool.Get(entity);
                 ref var position = ref positionPool.Get(entity);
+
+                cooldown.cooldown = hitArea.cooldown;
 
                 foreach (int creatureEntity in creaturesFilter)
                 {
@@ -37,7 +42,7 @@ namespace TdGame
 
                     if (creaturePosition.lineId == position.lineId && Mathf.Abs(creaturePosition.z - position.z) <= hitArea.size * 0.5f)
                     {
-                        //Debug.Log($"Hit creature {creatureEntity} for {hitArea.hitPower} points");
+                        Debug.Log($"Hit creature {creatureEntity} for {hitArea.hitPower} points");
                         ref var targetDamage = ref damagePool.GetOrAdd(creatureEntity);
                         targetDamage.damage += hitArea.hitPower;
                     }

@@ -21,7 +21,9 @@ namespace TdGame
             foreach (int entity in filter)
             {
                 ref var turretUi = ref turretUiPool.Get(entity);
-                GameObject.Destroy(turretUi.hud.gameObject);
+
+                if (turretUi.hud != null)
+                    GameObject.Destroy(turretUi.hud.gameObject);
                 turretUi.hud = null;
                 turretUiPool.Del(entity);
             }

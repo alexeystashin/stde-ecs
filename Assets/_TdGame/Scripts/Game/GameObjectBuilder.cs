@@ -15,7 +15,7 @@ namespace TdGame
         EcsPool<Turret> turretPool;
         EcsPool<Area> areaPool;
         EcsPool<HitArea> hitAreaPool;
-        EcsPool<AreaTrigger> areaTriggerPool;
+        EcsPool<FreezeArea> freezeAreaPool;
         EcsPool<Bolt> boltPool;
         EcsPool<HitBolt> hitBoltPool;
         EcsPool<AreaBolt> areaBoltPool;
@@ -37,7 +37,7 @@ namespace TdGame
             turretPool = world.GetPool<Turret>();
             areaPool = world.GetPool<Area>();
             hitAreaPool = world.GetPool<HitArea>();
-            areaTriggerPool = world.GetPool<AreaTrigger>();
+            freezeAreaPool = world.GetPool<FreezeArea>();
             boltPool = world.GetPool<Bolt>();
             hitBoltPool = world.GetPool<HitBolt>();
             areaBoltPool = world.GetPool<AreaBolt>();
@@ -57,9 +57,18 @@ namespace TdGame
             CreateWaveSpawners(context.gameRules.waves[context.currentWave]);
 
             // player turrets
-            CreateTurret(context.staticGameData.towers[MockStaticGameData.TowerTemplateId.MachineGun.ToString()], 0, 0);
-            CreateTurret(context.staticGameData.towers[MockStaticGameData.TowerTemplateId.Rocket.ToString()], 1, 0);
-            CreateTurret(context.staticGameData.towers[MockStaticGameData.TowerTemplateId.MachineGun.ToString()], 2, 0);
+            var lineId = 0;
+            var rowId = 0;
+            foreach (var turretId in context.gameRules.playerTowers)
+            {
+                CreateTurret(context.staticGameData.towers[turretId], lineId, rowId);
+                lineId++;
+                if (lineId >= MagicNumbersGame.lineCount)
+                {
+                    lineId = 0;
+                    rowId++;
+                }
+            }
         }
 
         public void CreateWaveSpawners(WaveTemplate template)
@@ -192,14 +201,25 @@ namespace TdGame
 
             ref var area = ref areaPool.Add(entity);
 
-            if (template.attackPower > 0)
+            if (template.actionType == MockStaticGameData.AreaActionTypeId.Attack.ToString())
             {
                 ref var hitArea = ref hitAreaPool.Add(entity);
                 hitArea.hitPower = template.attackPower;
                 hitArea.size = template.size;
+                hitArea.cooldown = template.actionCooldown;
 
-                // todo: add by colldown via separate system
-                ref var areaTrigger = ref areaTriggerPool.Add(entity);
+                ref var cooldown = ref cooldownPool.Add(entity);
+                cooldown.cooldown = 0;
+            }
+            else if (template.actionType == MockStaticGameData.AreaActionTypeId.Freeze.ToString())
+            {
+                ref var freezeArea = ref freezeAreaPool.Add(entity);
+                //freezeArea.hitPower = template.attackPower;
+                freezeArea.size = template.size;
+                freezeArea.cooldown = template.actionCooldown;
+
+                ref var cooldown = ref cooldownPool.Add(entity);
+                cooldown.cooldown = 0;
             }
 
             ref var position = ref positionPool.Add(entity);

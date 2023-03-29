@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace App
+namespace Common
 {
     public class SimpeFpsCounter : MonoBehaviour
     {

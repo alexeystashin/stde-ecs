@@ -29,7 +29,7 @@ namespace TdGame
                 ref var position = ref positionPool.Get(entity);
                 ref var cooldown = ref cooldownPool.Get(entity);
 
-                if (cooldown.cooldown <= 0 && context.creaturesByLine[position.lineId].Count > 0)
+                if (cooldown.cooldown <= 0)
                 {
                     cooldown.cooldown = turret.template.attackCooldown;
 

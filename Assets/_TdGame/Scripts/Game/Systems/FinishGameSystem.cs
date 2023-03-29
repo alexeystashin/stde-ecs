@@ -31,7 +31,7 @@ namespace TdGame
                     context.isWin = gameFinishedEvent.isWin;
 
                     // todo: move window initialization out of here
-                    var go = GameObject.Instantiate(PrefabCache.instance.GetPrefab(GamePrefabPath.gameResultWindow), context.canvas.GetComponent<RectTransform>());
+                    var go = GameObject.Instantiate(PrefabCache.instance.GetPrefab(GamePrefabPath.gameResultWindow), context.gameCanvas.GetComponent<RectTransform>());
                     var gameResultWindow = go.GetComponent<GameResultWindow>();
                     gameResultWindow.titleText.text = context.isWin ? "WIN!" : "LOSE!";
                     gameResultWindow.scoreText.text = $"Score: {context.score}";
@@ -39,8 +39,6 @@ namespace TdGame
                     var currentWave = Mathf.Min(context.currentWave + 1, totalWaves);
                     gameResultWindow.waveCounterText.text = $"Wave {currentWave}/{totalWaves}";
                 }
-
-                eventsWorld.DelEntity(entity);
             }
         }
     }

@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_TdGame/Scenes/HomeScene.unity
+    guid: 4f085388a300f314c94d7c209eb932ea
+  - enabled: 1
     path: Assets/_TdGame/Scenes/GameScene.unity
     guid: f43129cc8afcfba418e03e485d105255
   m_configObjects: {}

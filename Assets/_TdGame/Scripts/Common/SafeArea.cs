@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace App
+namespace Common
 {
     [RequireComponent(typeof(RectTransform))]
     public class SafeArea : MonoBehaviour

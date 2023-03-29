@@ -7,15 +7,19 @@ namespace TdGame
 {
     public class GameContext : IDisposable
     {
+        // external objects
+
         public StaticGameData staticGameData;
         public GameRules gameRules;
 
-        public GameObjectBuilder objectBuilder;
-
+        public Camera gameCamera;
+        public Canvas gameCanvas;
         public GameInput gameInput;
         public GameUi gameUi;
-        public Camera camera;
-        public Canvas canvas;
+
+        // internal objects
+
+        public GameObjectBuilder objectBuilder;
 
         // game state
 
@@ -35,10 +39,6 @@ namespace TdGame
 
         public GameContext(EcsWorld world)
         {
-            staticGameData = MockStaticGameData.Create();
-
-            gameRules = MockStaticGameData.CreateEasyGameRules();
-
             objectBuilder = new GameObjectBuilder(this, world);
 
             creaturesByLine = new List<List<int>>();
@@ -52,14 +52,8 @@ namespace TdGame
 
         public void Dispose()
         {
-            staticGameData = null;
-
-            gameRules = null;
-
             objectBuilder.Dispose();
             objectBuilder = null;
-
-            gameInput = null;
 
             for (var i = 0; i < creaturesByLine.Count; i++)
                 creaturesByLine[i].Clear();
@@ -70,6 +64,14 @@ namespace TdGame
                 turretsByLine[i].Clear();
             turretsByLine.Clear();
             turretsByLine = null;
+
+            staticGameData = null;
+            gameRules = null;
+
+            gameCamera = null;
+            gameCanvas = null;
+            gameInput = null;
+            gameUi = null;
         }
     }
 }

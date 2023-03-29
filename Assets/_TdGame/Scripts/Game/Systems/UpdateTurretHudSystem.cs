@@ -33,7 +33,10 @@ namespace TdGame
                 ref var turret = ref turretPool.Get(entity);
                 ref var cooldown = ref cooldownPool.Get(entity);
 
-                var hudPosition = RectTransformUtility.WorldToScreenPoint(context.camera, view.viewObject.transform.position);
+                if (view.viewObject == null || turretUi.hud == null)
+                    continue;
+
+                var hudPosition = RectTransformUtility.WorldToScreenPoint(context.gameCamera, view.viewObject.transform.position);
                 turretUi.hud.transform.position = hudPosition;
 
                 var loadProgress = 1f - (cooldown.cooldown / turret.template.attackCooldown);

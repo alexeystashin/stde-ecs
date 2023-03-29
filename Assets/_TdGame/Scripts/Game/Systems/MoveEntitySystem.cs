@@ -8,12 +8,14 @@ namespace TdGame
         EcsWorld world;
         EcsPool<Motion> motionPool;
         EcsPool<Position> positionPool;
+        EcsPool<Freezed> freezedPool;
 
         public void Init(IEcsSystems systems)
         {
             world = systems.GetWorld();
             motionPool = world.GetPool<Motion>();
             positionPool = world.GetPool<Position>();
+            freezedPool = world.GetPool<Freezed>();
         }
 
         public void Run(IEcsSystems systems)
@@ -24,7 +26,13 @@ namespace TdGame
             {
                 ref var motion = ref motionPool.Get(entity);
                 ref var position = ref positionPool.Get(entity);
-                position.z += motion.velocityZ * Time.deltaTime;
+
+                var velocityZ = motion.velocityZ;
+
+                if (freezedPool.Has(entity))
+                    velocityZ *= 0.1f;
+
+                position.z += velocityZ * Time.deltaTime;
             }
         }
     }

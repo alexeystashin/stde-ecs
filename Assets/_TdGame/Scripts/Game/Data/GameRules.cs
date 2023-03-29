@@ -6,6 +6,8 @@ namespace TdGame
     {
         public List<WaveTemplate> waves;
 
+        public int towerLines;
+
         public List<string> playerTowers;
     }
 }
