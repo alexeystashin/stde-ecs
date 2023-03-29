@@ -747,6 +747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a5d42a680533044c88138bcaf5e4807, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rootPanel: {fileID: 2589810912509965482}
   titleText: {fileID: 4501993712712190880}
   waveCounterText: {fileID: 566808921793093523}
   scoreText: {fileID: 7483547446359044570}

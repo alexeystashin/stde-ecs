@@ -244,6 +244,61 @@ namespace TdGame
             return staticGameData;
         }
 
+        public static GameRules CreateTutorialGameRules()
+        {
+            var rules = new GameRules
+            {
+                waves = new List<WaveTemplate>(),
+                towerLines = 1,
+                playerTowers = new List<string>()
+            };
+
+            rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
+            rules.playerTowers.Add(TowerTemplateId.MachineGun.ToString());
+
+            const float cooldownChangePerWave = -0.1f;
+
+            for (var w = 0; w < MagicNumbersGame.easyWavesCount; w++)
+            {
+                var waveTemplate = new WaveTemplate
+                {
+                    lineSpawners = new List<List<SpawnerTemplate>>()
+                };
+
+                for (var i = 0; i < MagicNumbersGame.lineCount; i++)
+                {
+                    var spawners = new List<SpawnerTemplate>();
+
+                    // todo: fake data
+                    var spawnerTemplate = new SpawnerTemplate
+                    {
+                        creatureId = CreatureTemplateId.Creep.ToString(),
+                        delay = 3,
+                        lifetime = 10,
+                        cooldownMin = 3.0f + w * cooldownChangePerWave,
+                        cooldownMax = 4.0f + w * cooldownChangePerWave
+                    };
+                    spawners.Add(spawnerTemplate);
+
+                    spawnerTemplate = new SpawnerTemplate
+                    {
+                        creatureId = CreatureTemplateId.FastCreep.ToString(),
+                        delay = 10,
+                        lifetime = 10,
+                        cooldownMin = 10.0f + w * cooldownChangePerWave,
+                        cooldownMax = 15.0f + w * cooldownChangePerWave
+                    };
+                    spawners.Add(spawnerTemplate);
+
+                    waveTemplate.lineSpawners.Add(spawners);
+                }
+
+                rules.waves.Add(waveTemplate);
+            }
+
+            return rules;
+        }
+
         public static GameRules CreateEasyGameRules()
         {
             var rules = new GameRules

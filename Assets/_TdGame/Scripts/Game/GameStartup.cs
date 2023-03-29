@@ -30,12 +30,14 @@ namespace TdGame
 
             //todo: change rules setup
             var level = PlayerPrefs.GetInt("level");
-            if (level > 1)
-                context.gameRules = MockStaticGameData.CreateHardGameRules();
+            if (level <= 0)
+                context.gameRules = MockStaticGameData.CreateTutorialGameRules();
             else if (level == 1)
+                context.gameRules = MockStaticGameData.CreateEasyGameRules();
+            else if (level == 2)
                 context.gameRules = MockStaticGameData.CreateMediumGameRules();
             else
-                context.gameRules = MockStaticGameData.CreateEasyGameRules();
+                context.gameRules = MockStaticGameData.CreateHardGameRules();
 
             systems = new EcsSystems(world, context);
             systems
