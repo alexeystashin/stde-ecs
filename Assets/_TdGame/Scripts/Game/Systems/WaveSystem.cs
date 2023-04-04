@@ -1,45 +1,56 @@
 using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
     sealed class WaveSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
+
+        GameState gameState;
+        GameRules gameRules;
+        GameObjectBuilder objectBuilder;
+
+        [Inject]
+        void Construct(GameState gameState, GameRules gameRules, GameObjectBuilder objectBuilder)
+        {
+            this.gameState = gameState;
+            this.gameRules = gameRules;
+            this.objectBuilder = objectBuilder;
+        }
 
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
         }
 
         public void Run(IEcsSystems systems)
         {
-            if (context.currentWave >= context.gameRules.waves.Count)
+            if (gameState.currentWave >= gameRules.waves.Count)
                 return;
 
-            context.currentWaveTime += Time.deltaTime;
+            gameState.currentWaveTime += Time.deltaTime;
 
             var filter = world.Filter<Spawner>().Exc<DestroyMarker>().End();
 
             if (filter.GetEntitiesCount() == 0)
             {
-                context.currentWave++;
-                if (context.currentWave >= context.gameRules.waves.Count)
+                gameState.currentWave++;
+                if (gameState.currentWave >= gameRules.waves.Count)
                     return;
 
-                Debug.Log($"Wave {context.currentWave + 1}/{context.gameRules.waves.Count} started");
-                context.objectBuilder.CreateWaveSpawners(context.gameRules.waves[context.currentWave]);
+                Debug.Log($"Wave {gameState.currentWave + 1}/{gameRules.waves.Count} started");
+                objectBuilder.CreateWaveSpawners(gameRules.waves[gameState.currentWave]);
 
                 // calculate wave time (duplicate in GameStartup & WaveSystem!)
-                context.currentWaveTime = 0;
-                context.currentWaveTimeTotal = 0;
-                foreach(var line in context.gameRules.waves[context.currentWave].lineSpawners)
+                gameState.currentWaveTime = 0;
+                gameState.currentWaveTimeTotal = 0;
+                foreach(var line in gameRules.waves[gameState.currentWave].lineSpawners)
                 {
                     foreach(var spawnerTemplate in line)
                     {
-                        context.currentWaveTimeTotal = Mathf.Max(context.currentWaveTimeTotal,
+                        gameState.currentWaveTimeTotal = Mathf.Max(gameState.currentWaveTimeTotal,
                             spawnerTemplate.delay + spawnerTemplate.lifetime);
                     }
                 }

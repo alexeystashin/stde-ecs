@@ -1,25 +1,34 @@
 using Leopotam.EcsLite;
 using System.Linq;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
     sealed class CheckGameCompleteSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld eventsWorld;
         EcsPool<GameFinishedEvent> gameFinishedEventPool;
 
+        GameState gameState;
+        GameRules gameRules;
+
+        [Inject]
+        void Construct(GameState gameState, GameRules gameRules)
+        {
+            this.gameState = gameState;
+            this.gameRules = gameRules;
+        }
+
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             eventsWorld = systems.GetWorld("events");
             gameFinishedEventPool = eventsWorld.GetPool<GameFinishedEvent>();
         }
 
         public void Run(IEcsSystems systems)
         {
-            if (context.currentWave >= context.gameRules.waves.Count && context.creaturesByLine.All(line => line.Count == 0))
+            if (gameState.currentWave >= gameRules.waves.Count && gameState.creaturesByLine.All(line => line.Count == 0))
             {
                 var eventEntity = eventsWorld.NewEntity();
 

@@ -1,16 +1,23 @@
 using Leopotam.EcsLite;
+using Zenject;
 
 namespace TdGame
 {
     sealed class UpdateTurretListSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<Position> positionPool;
 
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
+
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             positionPool = world.GetPool<Position>();
         }
@@ -19,15 +26,15 @@ namespace TdGame
         {
             var filter = world.Filter<Turret>().Inc<Position>().Exc<DestroyMarker>().End();
 
-            for (var i = 0; i < context.turretsByLine.Count; i++)
+            for (var i = 0; i < gameState.turretsByLine.Count; i++)
             {
-                context.turretsByLine[i].Clear();
+                gameState.turretsByLine[i].Clear();
             }
 
             foreach (int entity in filter)
             {
                 ref var position = ref positionPool.Get(entity);
-                context.turretsByLine[position.lineId].Add(entity);
+                gameState.turretsByLine[position.lineId].Add(entity);
             }
         }
     }

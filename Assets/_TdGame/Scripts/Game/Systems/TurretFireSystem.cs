@@ -1,18 +1,27 @@
 using Leopotam.EcsLite;
+using Zenject;
 
 namespace TdGame
 {
     sealed class TurretFireSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<Turret> turretPool;
         EcsPool<Position> positionPool;
         EcsPool<Cooldown> cooldownPool;
 
+        StaticGameData staticGameData;
+        GameObjectBuilder objectBuilder;
+
+        [Inject]
+        void Construct(StaticGameData staticGameData, GameObjectBuilder objectBuilder)
+        {
+            this.staticGameData = staticGameData;
+            this.objectBuilder = objectBuilder;
+        }
+
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             turretPool = world.GetPool<Turret>();
             positionPool = world.GetPool<Position>();
@@ -33,8 +42,8 @@ namespace TdGame
                 {
                     cooldown.cooldown = turret.template.attackCooldown;
 
-                    var boltTemplate = context.staticGameData.bolts[turret.template.attackBoltId];
-                    context.objectBuilder.CreateBolt(boltTemplate, position.lineId, position.z);
+                    var boltTemplate = staticGameData.bolts[turret.template.attackBoltId];
+                    objectBuilder.CreateBolt(boltTemplate, position.lineId, position.z);
                 }
             }
         }

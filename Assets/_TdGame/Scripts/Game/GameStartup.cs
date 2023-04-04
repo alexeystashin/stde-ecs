@@ -1,82 +1,95 @@
 using Leopotam.EcsLite;
 using System.Linq;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
     sealed class GameStartup : MonoBehaviour
     {
-        [SerializeField] Camera gameCamera;
-        [SerializeField] Canvas gameCanvas;
-        [SerializeField] GameInput gameInput;
-        [SerializeField] GameUi gameUi;
+        DiContainer di;
 
         EcsWorld world;
-        GameContext context;
+        GameState gameState;
+        GameRules gameRules;
+        GameObjectBuilder objectBuilder;
+
         IEcsSystems systems;
 
-        void Start()
+        [Inject]
+        void Construct(DiContainer di, EcsWorld world, GameState gameState, GameRules gameRules, GameObjectBuilder objectBuilder)
         {
-            world = new EcsWorld();
+            this.di = di;
+            this.world = world;
+            this.gameState = gameState;
+            this.gameRules = gameRules;
+            this.objectBuilder = objectBuilder;
 
-            context = new GameContext(world);
+            InitSystems();
 
-            context.gameCamera = gameCamera;
-            context.gameCanvas = gameCanvas;
-            context.gameInput = gameInput;
-            context.gameUi = gameUi;
+            InitGame();
+        }
 
-            context.staticGameData = MockStaticGameData.Create();
+        void InitGame()
+        {
+            Debug.LogWarning("Create Game");
 
-            //todo: change rules setup
-            var level = PlayerPrefs.GetInt("level");
-            if (level <= 0)
-                context.gameRules = MockStaticGameData.CreateTutorialGameRules();
-            else if (level == 1)
-                context.gameRules = MockStaticGameData.CreateEasyGameRules();
-            else if (level == 2)
-                context.gameRules = MockStaticGameData.CreateMediumGameRules();
-            else
-                context.gameRules = MockStaticGameData.CreateHardGameRules();
+            // create initial entities
+            objectBuilder.CreateInitialEntities();
 
-            systems = new EcsSystems(world, context);
+            // calculate wave time (duplicate in GameStartup & WaveSystem!)
+            gameState.currentWaveTime = 0;
+            gameState.currentWaveTimeTotal = 0;
+            foreach (var line in gameRules.waves[gameState.currentWave].lineSpawners)
+            {
+                foreach (var spawnerTemplate in line)
+                {
+                    gameState.currentWaveTimeTotal = Mathf.Max(gameState.currentWaveTimeTotal,
+                        spawnerTemplate.delay + spawnerTemplate.lifetime);
+                }
+            }
+        }
+
+        void InitSystems()
+        {
+            systems = new EcsSystems(world, gameState);
             systems
                 // register your systems here
-                .Add(new LifetimeSystem())
-                .Add(new CooldownSystem())
-                .Add(new FreezedTimeSystem())
-                .Add(new SpawnCreatureSystem())
-                .Add(new UpdateCreatureListSystem())
-                .Add(new UpdateTurretListSystem())
-                .Add(new PlayerInputSystem())
-                .Add(new TriggerAreaByCooldownSystem())
-                .Add(new TurretFireTriggerByCooldownSystem())
-                .Add(new TurretFireSystem())
-                .Add(new MoveTurretSystem())
-                .Add(new MoveEntitySystem())
-                .Add(new UpdateEntityViewPositionSystem())
-                .Add(new UpdateTurretHudSystem())
-                .Add(new BoltCollisionSystem())
-                .Add(new ApplyAreaBoltSystem())
-                .Add(new ApplyHitBoltSystem())
-                .Add(new ApplyHitAreaSystem())
-                .Add(new ApplyFreezeAreaSystem())
-                .Add(new ApplyDamageSystem())
-                .Add(new CreatureArriveSystem())
-                .Add(new CheckGameCompleteSystem())
-                .Add(new WaveSystem())
-                .Add(new UpdateGameUiSystem())
-                .Add(new AddScoreForKillSystem())
-                .Add(new BoltArriveSystem())
-                .Add(new FinishGameSystem())
-                .Add(new RemoveComponentSystem<AreaTrigger>())
-                .Add(new RemoveComponentSystem<BoltTrigger>())
-                .Add(new RemoveComponentSystem<TurretFireTrigger>())
-                .Add(new RemoveComponentSystem<GameFinishedEvent>())
-                .Add(new DestroyEntityUiSystem())
-                .Add(new DestroyEntityViewSystem())
-                .Add(new DestroyEntitySystem())
-                
+                .Add(di.Instantiate<LifetimeSystem>())
+                .Add(di.Instantiate<CooldownSystem>())
+                .Add(di.Instantiate<FreezedTimeSystem>())
+                .Add(di.Instantiate<SpawnCreatureSystem>())
+                .Add(di.Instantiate<UpdateCreatureListSystem>())
+                .Add(di.Instantiate<UpdateTurretListSystem>())
+                .Add(di.Instantiate<PlayerInputSystem>())
+                .Add(di.Instantiate<TriggerAreaByCooldownSystem>())
+                .Add(di.Instantiate<TurretFireTriggerByCooldownSystem>())
+                .Add(di.Instantiate<TurretFireSystem>())
+                .Add(di.Instantiate<MoveTurretSystem>())
+                .Add(di.Instantiate<MoveEntitySystem>())
+                .Add(di.Instantiate<UpdateEntityViewPositionSystem>())
+                .Add(di.Instantiate<UpdateTurretHudSystem>())
+                .Add(di.Instantiate<BoltCollisionSystem>())
+                .Add(di.Instantiate<ApplyAreaBoltSystem>())
+                .Add(di.Instantiate<ApplyHitBoltSystem>())
+                .Add(di.Instantiate<ApplyHitAreaSystem>())
+                .Add(di.Instantiate<ApplyFreezeAreaSystem>())
+                .Add(di.Instantiate<ApplyDamageSystem>())
+                .Add(di.Instantiate<CreatureArriveSystem>())
+                .Add(di.Instantiate<CheckGameCompleteSystem>())
+                .Add(di.Instantiate<WaveSystem>())
+                .Add(di.Instantiate<UpdateGameUiSystem>())
+                .Add(di.Instantiate<AddScoreForKillSystem>())
+                .Add(di.Instantiate<BoltArriveSystem>())
+                .Add(di.Instantiate<FinishGameSystem>())
+                .Add(di.Instantiate<RemoveComponentSystem<AreaTrigger>>())
+                .Add(di.Instantiate<RemoveComponentSystem<BoltTrigger>>())
+                .Add(di.Instantiate<RemoveComponentSystem<TurretFireTrigger>>())
+                .Add(di.Instantiate<RemoveComponentSystem<GameFinishedEvent>>())
+                .Add(di.Instantiate<DestroyEntityUiSystem>())
+                .Add(di.Instantiate<DestroyEntityViewSystem>())
+                .Add(di.Instantiate<DestroyEntitySystem>())
+
                 // register additional worlds here, for example:
                 .AddWorld(new EcsWorld(), "events")
 #if UNITY_EDITOR
@@ -85,26 +98,11 @@ namespace TdGame
                 .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
                 .Init();
-
-            // create initial entities
-            context.objectBuilder.CreateInitialEntities();
-
-            // calculate wave time (duplicate in GameStartup & WaveSystem!)
-            context.currentWaveTime = 0;
-            context.currentWaveTimeTotal = 0;
-            foreach (var line in context.gameRules.waves[context.currentWave].lineSpawners)
-            {
-                foreach (var spawnerTemplate in line)
-                {
-                    context.currentWaveTimeTotal = Mathf.Max(context.currentWaveTimeTotal,
-                        spawnerTemplate.delay + spawnerTemplate.lifetime);
-                }
-            }
         }
 
         void Update()
         {
-            if (context.isGameFinished)
+            if (gameState.isGameFinished)
                 return;
 
             // process systems here.
@@ -117,7 +115,7 @@ namespace TdGame
             if (world == null)
                 return;
 
-            context.isGameFinished = true;
+            gameState.isGameFinished = true;
 
             var filter = world.Filter<View>().End();
             var destroyMarkerPool = world.GetPool<DestroyMarker>();
@@ -133,7 +131,15 @@ namespace TdGame
 
         void OnDestroy()
         {
+            Debug.LogWarning("Destroy Game");
+
             ForceCleanup();
+
+            if (objectBuilder != null)
+            {
+                objectBuilder.Dispose();
+                objectBuilder = null;
+            }
 
             if (systems != null) {
                 // list of custom worlds will be cleared
@@ -151,10 +157,10 @@ namespace TdGame
                 world = null;
             }
 
-            if (context != null)
+            if (gameState != null)
             {
-                context.Dispose();
-                context = null;
+                gameState.Dispose();
+                gameState = null;
             }
         }
     }

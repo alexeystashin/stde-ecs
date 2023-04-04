@@ -5,7 +5,6 @@ namespace TdGame
 {
     sealed class MoveTurretSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<Turret> turretPool;
         EcsPool<Position> positionPool;
@@ -15,7 +14,6 @@ namespace TdGame
 
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             turretPool = world.GetPool<Turret>();
             positionPool = world.GetPool<Position>();

@@ -1,20 +1,33 @@
 using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
     sealed class PlayerInputSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<Turret> turretPool;
         EcsPool<TurretMotion> turretMotionPool;
         EcsPool<TurretFireTrigger> turretFireTriggerPool;
         EcsPool<AnimationMarker> animationMarkerPool;
 
+        GameState gameState;
+        GameRules gameRules;
+        Camera gameCamera;
+        GameInput gameInput;
+
+        [Inject]
+        void Construct(GameState gameState, GameRules gameRules, GameInput gameInput, Camera gameCamera)
+        {
+            this.gameState = gameState;
+            this.gameRules = gameRules;
+            this.gameInput = gameInput;
+            this.gameCamera = gameCamera;
+        }
+
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             turretPool = world.GetPool<Turret>();
             turretMotionPool = world.GetPool<TurretMotion>();
@@ -24,10 +37,10 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
-            if (context.isGameFinished)
+            if (gameState.isGameFinished)
                 return;
 
-            foreach (var touch in context.gameInput.touches)
+            foreach (var touch in gameInput.touches)
             {
                 if (touch.isProcessed)
                     continue;
@@ -109,7 +122,7 @@ namespace TdGame
                             //Debug.Log("Swipe Up");
 
                             ref var touchedTurret = ref turretPool.Get(touchedTurretEntity);
-                            if (touchedTurret.rowId < context.gameRules.towerLines - 1)
+                            if (touchedTurret.rowId < gameRules.towerLines - 1)
                             {
                                 var secondTurretEntityPacked = GetTurret(touchedTurret.lineId, touchedTurret.rowId + 1);
 
@@ -167,7 +180,7 @@ namespace TdGame
 
         EcsPackedEntity GetTurretEntityUnderTouch(Vector3 touchPos)
         {
-            Ray rayOrigin = context.gameCamera.ScreenPointToRay(touchPos);
+            Ray rayOrigin = gameCamera.ScreenPointToRay(touchPos);
 
             if (Physics.Raycast(rayOrigin, out var hitInfo))
             {
@@ -192,9 +205,9 @@ namespace TdGame
             if (lineId < 0 || lineId >= MagicNumbersGame.lineCount)
                 return default;
 
-            for(var i = 0; i < context.turretsByLine[lineId].Count; i++)
+            for(var i = 0; i < gameState.turretsByLine[lineId].Count; i++)
             {
-                var turretEntity = context.turretsByLine[lineId][i];
+                var turretEntity = gameState.turretsByLine[lineId][i];
                 ref var turret = ref turretPool.Get(turretEntity);
                 if (turret.rowId == rowId)
                     return world.PackEntity(turretEntity);

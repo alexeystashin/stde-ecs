@@ -1,19 +1,26 @@
 using Leopotam.EcsLite;
+using Zenject;
 
 namespace TdGame
 {
     sealed class TurretFireTriggerByCooldownSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<Turret> turretPool;
         EcsPool<TurretFireTrigger> turretFireTriggerPool;
         EcsPool<Position> positionPool;
         EcsPool<Cooldown> cooldownPool;
 
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
+
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             turretPool = world.GetPool<Turret>();
             turretFireTriggerPool = world.GetPool<TurretFireTrigger>();
@@ -34,7 +41,7 @@ namespace TdGame
                 if (!turret.template.autoAttack)
                     continue;
 
-                if (cooldown.cooldown <= 0 && context.creaturesByLine[position.lineId].Count > 0)
+                if (cooldown.cooldown <= 0 && gameState.creaturesByLine[position.lineId].Count > 0)
                 {
                     turretFireTriggerPool.Add(entity);
                 }

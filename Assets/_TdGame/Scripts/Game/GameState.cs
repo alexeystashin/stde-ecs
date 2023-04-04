@@ -1,28 +1,10 @@
-using Leopotam.EcsLite;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace TdGame
 {
-    public class GameContext : IDisposable
+    public class GameState : IDisposable
     {
-        // external objects
-
-        public StaticGameData staticGameData;
-        public GameRules gameRules;
-
-        public Camera gameCamera;
-        public Canvas gameCanvas;
-        public GameInput gameInput;
-        public GameUi gameUi;
-
-        // internal objects
-
-        public GameObjectBuilder objectBuilder;
-
-        // game state
-
         public int currentWave;
         public float currentWaveTime;
         public float currentWaveTimeTotal;
@@ -37,10 +19,8 @@ namespace TdGame
         public List<List<int>> creaturesByLine;
         public List<List<int>> turretsByLine;
 
-        public GameContext(EcsWorld world)
+        public GameState()
         {
-            objectBuilder = new GameObjectBuilder(this, world);
-
             creaturesByLine = new List<List<int>>();
             for (var i = 0; i < MagicNumbersGame.lineCount; i++)
                 creaturesByLine.Add(new List<int>());
@@ -52,9 +32,6 @@ namespace TdGame
 
         public void Dispose()
         {
-            objectBuilder.Dispose();
-            objectBuilder = null;
-
             for (var i = 0; i < creaturesByLine.Count; i++)
                 creaturesByLine[i].Clear();
             creaturesByLine.Clear();
@@ -64,14 +41,6 @@ namespace TdGame
                 turretsByLine[i].Clear();
             turretsByLine.Clear();
             turretsByLine = null;
-
-            staticGameData = null;
-            gameRules = null;
-
-            gameCamera = null;
-            gameCanvas = null;
-            gameInput = null;
-            gameUi = null;
         }
     }
 }

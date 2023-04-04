@@ -20,9 +20,6 @@ namespace TdGame
 
         void OnClick()
         {
-            //var gameStartup = GameObject.FindAnyObjectByType<GameStartup>();
-            //Destroy(gameStartup.gameObject);
-
             SceneManager.LoadScene(0);
         }
     }

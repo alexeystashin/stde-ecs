@@ -1,16 +1,23 @@
 using Leopotam.EcsLite;
+using Zenject;
 
 namespace TdGame
 {
     sealed class AddScoreForKillSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<Creature> creaturePool;
 
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
+
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             creaturePool = world.GetPool<Creature>();
         }
@@ -23,7 +30,7 @@ namespace TdGame
             {
                 ref var creature = ref creaturePool.Get(entity);
 
-                context.score += creature.killScore;
+                gameState.score += creature.killScore;
             }
         }
     }

@@ -1,10 +1,10 @@
 using Leopotam.EcsLite;
+using Zenject;
 
 namespace TdGame
 {
     sealed class BoltCollisionSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<Bolt> boltPool;
         EcsPool<BoltTrigger> boltTriggerPool;
@@ -12,9 +12,16 @@ namespace TdGame
         EcsPool<Damage> damagePool;
         EcsPool<DestroyMarker> destroyMarkerPool;
 
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
+
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             boltPool = world.GetPool<Bolt>();
             boltTriggerPool = world.GetPool<BoltTrigger>();
@@ -31,7 +38,7 @@ namespace TdGame
             {
                 ref var bolt = ref boltPool.Get(entity);
                 ref var position = ref positionPool.Get(entity);
-                var creaturesByLine = context.creaturesByLine[position.lineId];
+                var creaturesByLine = gameState.creaturesByLine[position.lineId];
                 for (var i = 0; i < creaturesByLine.Count; i++)
                 {
                     var creatureEntity = creaturesByLine[i];

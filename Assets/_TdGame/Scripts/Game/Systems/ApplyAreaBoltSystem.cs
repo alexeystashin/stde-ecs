@@ -1,19 +1,27 @@
 using Leopotam.EcsLite;
-using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
     sealed class ApplyAreaBoltSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<AreaBolt> areaBoltPool;
         EcsPool<BoltTrigger> boltTriggerPool;
         EcsPool<Position> positionPool;
 
+        StaticGameData staticGameData;
+        GameObjectBuilder objectBuilder;
+
+        [Inject]
+        void Construct(StaticGameData staticGameData, GameObjectBuilder objectBuilder)
+        {
+            this.staticGameData = staticGameData;
+            this.objectBuilder = objectBuilder;
+        }
+
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             areaBoltPool = world.GetPool<AreaBolt>();
             boltTriggerPool = world.GetPool<BoltTrigger>();
@@ -34,8 +42,8 @@ namespace TdGame
                     continue;
 
                 //Debug.Log($"Area spawned {areaBolt.areaTemplateId}");
-                var areaTemplate = context.staticGameData.areas[areaBolt.areaTemplateId];
-                context.objectBuilder.CreateArea(areaTemplate, position.lineId, position.z);
+                var areaTemplate = staticGameData.areas[areaBolt.areaTemplateId];
+                objectBuilder.CreateArea(areaTemplate, position.lineId, position.z);
             }
         }
     }

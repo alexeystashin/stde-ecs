@@ -4,7 +4,6 @@ namespace TdGame
 {
     sealed class TriggerAreaByCooldownSystem : IEcsInitSystem, IEcsRunSystem
     {
-        GameContext context;
         EcsWorld world;
         EcsPool<Area> areaPool;
         EcsPool<AreaTrigger> areaTriggerPool;
@@ -13,7 +12,6 @@ namespace TdGame
 
         public void Init(IEcsSystems systems)
         {
-            context = systems.GetShared<GameContext>();
             world = systems.GetWorld();
             areaPool = world.GetPool<Area>();
             areaTriggerPool = world.GetPool<AreaTrigger>();

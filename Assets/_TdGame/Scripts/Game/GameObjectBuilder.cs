@@ -1,14 +1,19 @@
 using Leopotam.EcsLite;
 using System;
 using UnityEngine;
+using Zenject;
 using Random = UnityEngine.Random;
 
 namespace TdGame
 {
     public class GameObjectBuilder : IDisposable
     {
-        GameContext context;
         EcsWorld world;
+
+        GameState gameState;
+        GameRules gameRules;
+        GameUi gameUi;
+        StaticGameData staticGameData;
 
         EcsPool<Spawner> spawnerPool;
         EcsPool<Creature> creaturePool;
@@ -27,11 +32,20 @@ namespace TdGame
         EcsPool<View> viewPool;
         EcsPool<TurretUi> turretUiPool;
 
-        public GameObjectBuilder(GameContext aContext, EcsWorld aWorld)
+        [Inject]
+        public void Construct(EcsWorld world, GameState gameState, GameRules gameRules, GameUi gameUi, StaticGameData staticGameData)
         {
-            context = aContext;
-            world = aWorld;
+            this.world = world;
+            this.gameState = gameState;
+            this.gameRules = gameRules;
+            this.gameUi = gameUi;
+            this.staticGameData = staticGameData;
 
+            InitPools();
+        }
+
+        void InitPools()
+        {
             spawnerPool = world.GetPool<Spawner>();
             creaturePool = world.GetPool<Creature>();
             turretPool = world.GetPool<Turret>();
@@ -53,15 +67,15 @@ namespace TdGame
         public void CreateInitialEntities()
         {
             // creature spawners
-            Debug.Log($"Wave {context.currentWave + 1}/{context.gameRules.waves.Count} started");
-            CreateWaveSpawners(context.gameRules.waves[context.currentWave]);
+            Debug.Log($"Wave {gameState.currentWave + 1}/{gameRules.waves.Count} started");
+            CreateWaveSpawners(gameRules.waves[gameState.currentWave]);
 
             // player turrets
             var lineId = 0;
             var rowId = 0;
-            foreach (var turretId in context.gameRules.playerTowers)
+            foreach (var turretId in gameRules.playerTowers)
             {
-                CreateTurret(context.staticGameData.towers[turretId], lineId, rowId);
+                CreateTurret(staticGameData.towers[turretId], lineId, rowId);
                 lineId++;
                 if (lineId >= MagicNumbersGame.lineCount)
                 {
@@ -130,7 +144,7 @@ namespace TdGame
 
             var hudObject = GameObject.Instantiate(PrefabCache.instance.GetPrefab(GamePrefabPath.turretHud),
                 GameUtils.PositionToVector3(position.lineId, position.x, position.z),
-                Quaternion.identity, context.gameUi.hudContiner);
+                Quaternion.identity, gameUi.hudContiner);
             var hud = hudObject.GetComponent<TurretHud>();
 
             ref var turretUi = ref turretUiPool.Add(entity);
@@ -239,7 +253,9 @@ namespace TdGame
 
         public void Dispose()
         {
-            context = null;
+            Debug.LogWarning("GameObjectBuilder.Dispose()");
+
+            gameState = null;
             world = null;
             //todo: clear pool references
         }
