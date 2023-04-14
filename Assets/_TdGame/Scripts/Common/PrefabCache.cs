@@ -2,24 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TdGame
+namespace Common
 {
-    public class PrefabCache
+    public class PrefabCache : IDisposable
     {
-        #region singleton
-        static PrefabCache _instance;
-        public static PrefabCache instance
-        {
-            get
-            {
-                if (_instance == null)
-                    _instance = new PrefabCache();
-                return _instance;
-            }
-        }
-        PrefabCache() { }
-        #endregion
-
         Dictionary<string, GameObject> prefabs = new();
 
         public Func<string, GameObject> ExternalPrefabSource;
@@ -27,7 +13,7 @@ namespace TdGame
         public GameObject GetPrefab(string path)
         {
             if(string.IsNullOrEmpty(path))
-                return PrefabCache.instance.GetPrefab("Error");
+                return GetPrefab("Error");
 
             if (prefabs.ContainsKey(path))
                 return prefabs[path];
@@ -44,7 +30,7 @@ namespace TdGame
                 Debug.LogWarning("Prefab not found: " + path);
 
                 if (path != "Error")
-                    return PrefabCache.instance.GetPrefab("Error");
+                    return GetPrefab("Error");
                 else
                     return null;
             }
@@ -57,6 +43,11 @@ namespace TdGame
         {
             foreach (var prefab in prefabs)
                 prefabs.Add(prefab.Key, prefab.Value);
+        }
+
+        public void Dispose()
+        {
+            Debug.LogWarning("PrefabCache.Dispose");
         }
     }
 }

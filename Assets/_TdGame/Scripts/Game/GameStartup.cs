@@ -52,7 +52,7 @@ namespace TdGame
 
         void InitSystems()
         {
-            systems = new EcsSystems(world, gameState);
+            systems = new EcsSystems(world);
             systems
                 // register your systems here
                 .Add(di.Instantiate<LifetimeSystem>())
@@ -110,6 +110,7 @@ namespace TdGame
                 systems.Run();
         }
 
+        // todo: replace a hack by a correct dispose of View objects
         void ForceCleanup()
         {
             if (world == null)
@@ -135,16 +136,7 @@ namespace TdGame
 
             ForceCleanup();
 
-            if (objectBuilder != null)
-            {
-                objectBuilder.Dispose();
-                objectBuilder = null;
-            }
-
             if (systems != null) {
-                // list of custom worlds will be cleared
-                // during IEcsSystems.Destroy(). so, you
-                // need to save it here if you need.
                 systems.Destroy();
                 systems = null;
             }
@@ -155,12 +147,6 @@ namespace TdGame
             if (world != null) {
                 world.Destroy();
                 world = null;
-            }
-
-            if (gameState != null)
-            {
-                gameState.Dispose();
-                gameState = null;
             }
         }
     }

@@ -1,3 +1,4 @@
+using Common;
 using Leopotam.EcsLite;
 using System;
 using UnityEngine;
@@ -14,6 +15,9 @@ namespace TdGame
         GameRules gameRules;
         GameUi gameUi;
         StaticGameData staticGameData;
+        PrefabCache prefabCache;
+        //EntityView.Factory entityViewFactory;
+        EntityView.Pool entityViewPool;
 
         EcsPool<Spawner> spawnerPool;
         EcsPool<Creature> creaturePool;
@@ -33,13 +37,17 @@ namespace TdGame
         EcsPool<TurretUi> turretUiPool;
 
         [Inject]
-        public void Construct(EcsWorld world, GameState gameState, GameRules gameRules, GameUi gameUi, StaticGameData staticGameData)
+        void Construct(DiContainer di, EcsWorld world, GameState gameState, GameRules gameRules, GameUi gameUi, StaticGameData staticGameData,
+            PrefabCache prefabCache, EntityView.Factory entityViewFactory, EntityView.Pool entityViewPool)
         {
             this.world = world;
             this.gameState = gameState;
             this.gameRules = gameRules;
             this.gameUi = gameUi;
             this.staticGameData = staticGameData;
+            this.prefabCache = prefabCache;
+            //this.entityViewFactory = entityViewFactory;
+            this.entityViewPool = entityViewPool;
 
             InitPools();
         }
@@ -133,16 +141,17 @@ namespace TdGame
             position.x = 0;
             position.z = GameUtils.RowToZ(rowId);
 
-            var viewObject = GameObject.Instantiate(PrefabCache.instance.GetPrefab(template.prefabPath),
-                GameUtils.PositionToVector3(position.lineId, position.x, position.z),
-                Quaternion.identity);
-            var entityView = viewObject.AddComponent<EntityView>();
-            entityView.entityId = world.PackEntity(entity);
+            //var viewObject = entityViewFactory.Create(template.prefabPath);
+            var viewObject = entityViewPool.Spawn(template.prefabPath);
+
+            viewObject.transform.position = GameUtils.PositionToVector3(position.lineId, position.x, position.z);
+            viewObject.transform.rotation = Quaternion.identity;
+            viewObject.entityId = world.PackEntity(entity);
 
             ref var view = ref viewPool.Add(entity);
             view.viewObject = viewObject;
 
-            var hudObject = GameObject.Instantiate(PrefabCache.instance.GetPrefab(GamePrefabPath.turretHud),
+            var hudObject = GameObject.Instantiate(prefabCache.GetPrefab(GamePrefabPath.turretHud),
                 GameUtils.PositionToVector3(position.lineId, position.x, position.z),
                 Quaternion.identity, gameUi.hudContiner);
             var hud = hudObject.GetComponent<TurretHud>();
@@ -169,9 +178,13 @@ namespace TdGame
             ref var health = ref healthPool.Add(entity);
             health.health = template.health;
 
-            var viewObject = GameObject.Instantiate(PrefabCache.instance.GetPrefab(template.prefabPath),
-                GameUtils.PositionToVector3(position.lineId, position.x, position.z),
-                Quaternion.Euler(0, 180, 0));
+            //var viewObject = entityViewFactory.Create(template.prefabPath);
+            var viewObject = entityViewPool.Spawn(template.prefabPath);
+
+            viewObject.transform.position = GameUtils.PositionToVector3(position.lineId, position.x, position.z);
+            viewObject.transform.rotation = Quaternion.Euler(0, 180, 0);
+            viewObject.entityId = world.PackEntity(entity);
+
             ref var view = ref viewPool.Add(entity);
             view.viewObject = viewObject;
         }
@@ -202,9 +215,18 @@ namespace TdGame
             ref var motion = ref motionPool.Add(entity);
             motion.velocityZ = template.moveSpeed;
 
-            var viewObject = GameObject.Instantiate(PrefabCache.instance.GetPrefab(template.prefabPath),
-                GameUtils.PositionToVector3(position.lineId, position.x, position.z),
-                Quaternion.identity);
+            //var viewObject = entityViewFactory.Create(template.prefabPath);
+            var viewObject = entityViewPool.Spawn(template.prefabPath);
+
+            viewObject.transform.position = GameUtils.PositionToVector3(position.lineId, position.x, position.z);
+            viewObject.transform.rotation = Quaternion.identity;
+            viewObject.entityId = world.PackEntity(entity);
+
+            //var viewObject = entityViewFactory.Create(template.prefabPath,
+            //    GameUtils.PositionToVector3(position.lineId, position.x, position.z),
+            //    Quaternion.identity,
+            //    world.PackEntity(entity));
+
             ref var view = ref viewPool.Add(entity);
             view.viewObject = viewObject;
         }
@@ -244,9 +266,13 @@ namespace TdGame
             ref var lifetime = ref lifetimePool.Add(entity);
             lifetime.lifetime = template.lifetime;
 
-            var viewObject = GameObject.Instantiate(PrefabCache.instance.GetPrefab(template.prefabPath),
-                GameUtils.PositionToVector3(position.lineId, position.x, position.z),
-                Quaternion.identity);
+            //var viewObject = entityViewFactory.Create(template.prefabPath);
+            var viewObject = entityViewPool.Spawn(template.prefabPath);
+
+            viewObject.transform.position = GameUtils.PositionToVector3(position.lineId, position.x, position.z);
+            viewObject.transform.rotation = Quaternion.identity;
+            viewObject.entityId = world.PackEntity(entity);
+
             ref var view = ref viewPool.Add(entity);
             view.viewObject = viewObject;
         }

@@ -5,6 +5,6 @@ namespace TdGame
 {
     struct View
     {
-        public GameObject viewObject;
+        public EntityView viewObject; // todo: use EntityView
     }
 }

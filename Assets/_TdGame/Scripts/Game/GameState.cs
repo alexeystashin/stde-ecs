@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace TdGame
 {
@@ -32,6 +33,8 @@ namespace TdGame
 
         public void Dispose()
         {
+            Debug.LogWarning("GameState.Dispose()");
+
             for (var i = 0; i < creaturesByLine.Count; i++)
                 creaturesByLine[i].Clear();
             creaturesByLine.Clear();

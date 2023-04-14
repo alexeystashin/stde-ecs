@@ -1,4 +1,5 @@
 ﻿using Leopotam.EcsLite;
+using System;
 using UnityEngine;
 using Zenject;
 
@@ -8,11 +9,27 @@ namespace TdGame
     {
         public override void InstallBindings()
         {
-            Container.Bind<EcsWorld>().FromNew().AsSingle();
-            Container.Bind<GameState>().FromNew().AsSingle();
-            Container.Bind<StaticGameData>().FromMethod(MockStaticGameData.Create).AsSingle();
-            Container.Bind<GameRules>().FromMethod(CreateGameRules).AsSingle();
-            Container.Bind<GameObjectBuilder>().FromNew().AsSingle();
+            Container
+                .Bind<EcsWorld>()
+                .AsSingle();
+
+            Container
+                .BindInterfacesAndSelfTo<GameState>()
+                .AsSingle();
+
+            Container
+                .Bind<StaticGameData>()
+                .FromMethod(MockStaticGameData.Create)
+                .AsSingle();
+
+            Container
+                .Bind<GameRules>()
+                .FromMethod(CreateGameRules)
+                .AsSingle();
+
+            Container
+                .BindInterfacesAndSelfTo<GameObjectBuilder>()
+                .AsSingle();
         }
 
         GameRules CreateGameRules()

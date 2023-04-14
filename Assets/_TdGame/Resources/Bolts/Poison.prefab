@@ -4837,7 +4837,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1531994081965840551}
-  - component: {fileID: 8431555340967229362}
+  - component: {fileID: 825848357969437538}
   m_Layer: 0
   m_Name: Poison
   m_TagString: Untagged
@@ -4858,12 +4858,11 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8152217762864614092}
-  - {fileID: 378441163805557970}
   - {fileID: 307765223101384581}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8431555340967229362
+--- !u!114 &825848357969437538
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4872,11 +4871,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5245889389843157715}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa20f55c1c4e22740b5749ca837784ae, type: 3}
+  m_Script: {fileID: 11500000, guid: 668ea20befbdffd4aa5faf12f1f4c985, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleSystem: {fileID: 5409019010447602387}
-  delay: 3
+  disposeDelay: 3
+  bolt: {fileID: 5459912879772417611}
+  trail: {fileID: 0}
+  particles: {fileID: 5409019010447602387}
 --- !u!1 &5459912879772417611
 GameObject:
   m_ObjectHideFlags: 0
@@ -4907,7 +4908,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 378441163805557970}
   m_Father: {fileID: 1531994081965840551}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5008,12 +5010,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7352102449563823298}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: -0.25}
-  m_LocalScale: {x: 0.25, y: 0.25, z: 0.5}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.5}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1531994081965840551}
+  m_Father: {fileID: 8152217762864614092}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1768622631526823622

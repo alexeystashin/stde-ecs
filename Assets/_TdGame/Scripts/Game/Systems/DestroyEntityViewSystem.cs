@@ -1,10 +1,11 @@
 using Common;
 using Leopotam.EcsLite;
+using System;
 using UnityEngine;
 
 namespace TdGame
 {
-    sealed class DestroyEntityViewSystem : IEcsInitSystem, IEcsRunSystem
+    sealed class DestroyEntityViewSystem : IEcsInitSystem, IEcsRunSystem, IDisposable
     {
         EcsWorld world;
         EcsPool<View> viewPool;
@@ -24,17 +25,17 @@ namespace TdGame
                 ref var view = ref viewPool.Get(entity);
                 if (view.viewObject != null)
                 {
-                    var detachParticles = view.viewObject.GetComponent<DetachParticles>();
-                    if (detachParticles != null)
-                    {
-                        detachParticles.Detach();
-                    }
-
-                    GameObject.Destroy(view.viewObject);
+                    //GameObject.Destroy(view.viewObject.gameObject);
+                    view.viewObject.SmoothDispose();
                 }
                 view.viewObject = null;
                 viewPool.Del(entity);
             }
+        }
+
+        public void Dispose()
+        {
+            Debug.LogWarning("DestroyEntityViewSystem.Dispose");
         }
     }
 }
