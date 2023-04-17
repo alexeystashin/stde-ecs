@@ -28,12 +28,15 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             if (gameState.currentWave >= gameRules.waves.Count && gameState.creaturesByLine.All(line => line.Count == 0))
             {
                 var eventEntity = eventsWorld.NewEntity();
 
                 ref var gameFinishedEvent = ref gameFinishedEventPool.Add(eventEntity);
-                gameFinishedEvent.isWin = true;
+                gameFinishedEvent.isGameWon = true;
             }
         }
     }

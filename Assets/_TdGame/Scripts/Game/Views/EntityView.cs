@@ -1,5 +1,6 @@
 using Common;
 using Leopotam.EcsLite;
+using Pump.Unity;
 using System;
 using UnityEngine;
 using Zenject;
@@ -17,19 +18,19 @@ namespace TdGame
         [Inject]
         void Construct()
         {
-            Debug.Log($"EntityView.Construct");
+            //Debug.Log($"EntityView.Construct");
         }
 
         public virtual void OnSpawned(IMemoryPool pool)
         {
-            Debug.Log($"EntityView.OnSpawned {gameObject.name}");
+            //Debug.Log($"EntityView.OnSpawned {gameObject.name}");
             isDisposed = false;
             _pool = pool;
         }
 
         public virtual void OnDespawned()
         {
-            Debug.Log($"EntityView.OnDespawned {gameObject.name}");
+            //Debug.Log($"EntityView.OnDespawned {gameObject.name}");
         }
 
         public virtual void SmoothDispose()
@@ -43,7 +44,7 @@ namespace TdGame
 
             isDisposed = true;
 
-            Debug.Log($"Dispose {gameObject.name}");
+            //Debug.Log($"Dispose {gameObject.name}");
 
             if (_pool != null)
             {
@@ -62,35 +63,6 @@ namespace TdGame
         {
             [Inject]
             public Pool(DiContainer container, MemoryPoolSettings settings, EntityView.Factory factory) : base(container, settings, factory) { }
-        }
-    }
-
-    class EntityViewFactory : IFactory<string, EntityView>
-    {
-        DiContainer di;
-        PrefabCache prefabCache;
-        Transform rootTransform;
-
-        [Inject]
-        public EntityViewFactory(DiContainer container, PrefabCache prefabCache, Transform rootTransform)
-        {
-            di = container;
-            this.prefabCache = prefabCache;
-            this.rootTransform = rootTransform;
-        }
-
-        public EntityView Create(string prefabPath)
-        {
-            Debug.Log($"Create EntityView {prefabPath}");
-            var prefab = prefabCache.GetPrefab(prefabPath);
-            var go = di.InstantiatePrefab(prefab, rootTransform);
-            var entityView = go.GetComponent<EntityView>();
-            if (entityView == null)
-            {
-                entityView = go.AddComponent<EntityView>();
-                di.Inject(entityView);
-            }
-            return entityView;
         }
     }
 }

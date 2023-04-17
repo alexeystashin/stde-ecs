@@ -1,5 +1,6 @@
 using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
@@ -11,6 +12,14 @@ namespace TdGame
         EcsPool<Cooldown> cooldownPool;
         EcsPool<Position> positionPool;
         EcsPool<Damage> damagePool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -24,6 +33,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<AreaTrigger>().Inc<HitArea>().End();
             var creaturesFilter = world.Filter<Creature>().Exc<DestroyMarker>().End();
 
@@ -42,7 +54,7 @@ namespace TdGame
 
                     if (creaturePosition.lineId == position.lineId && Mathf.Abs(creaturePosition.z - position.z) <= hitArea.size * 0.5f)
                     {
-                        Debug.Log($"Hit creature {creatureEntity} for {hitArea.hitPower} points");
+                        //Debug.Log($"Hit creature {creatureEntity} for {hitArea.hitPower} points");
                         ref var targetDamage = ref damagePool.GetOrAdd(creatureEntity);
                         targetDamage.damage += hitArea.hitPower;
                     }

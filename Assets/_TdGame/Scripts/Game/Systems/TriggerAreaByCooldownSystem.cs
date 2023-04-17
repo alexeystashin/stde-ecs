@@ -1,4 +1,5 @@
 using Leopotam.EcsLite;
+using Zenject;
 
 namespace TdGame
 {
@@ -9,6 +10,14 @@ namespace TdGame
         EcsPool<AreaTrigger> areaTriggerPool;
         EcsPool<Position> positionPool;
         EcsPool<Cooldown> cooldownPool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -21,6 +30,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<Area>().Inc<Cooldown>().Exc<AreaTrigger>().End();
 
             foreach (int entity in filter)

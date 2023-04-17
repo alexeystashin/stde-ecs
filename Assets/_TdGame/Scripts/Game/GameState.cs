@@ -12,8 +12,13 @@ namespace TdGame
 
         public int score;
 
-        public bool isGameFinished;
-        public bool isWin;
+        public int gamePauseCounter;
+        public bool isGameWon;
+        public bool isGameLost;
+
+        public bool isGameRunning => !isGamePaused && !isGameFinished;
+        public bool isGamePaused => gamePauseCounter > 0;
+        public bool isGameFinished => isGameWon || isGameLost;
 
         // cache
 
@@ -33,8 +38,6 @@ namespace TdGame
 
         public void Dispose()
         {
-            Debug.LogWarning("GameState.Dispose()");
-
             for (var i = 0; i < creaturesByLine.Count; i++)
                 creaturesByLine[i].Clear();
             creaturesByLine.Clear();

@@ -1,4 +1,5 @@
 using Leopotam.EcsLite;
+using Pump.Unity;
 using UnityEngine;
 using Zenject;
 
@@ -27,10 +28,13 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             if (gameState.currentWave >= gameRules.waves.Count)
                 return;
 
-            gameState.currentWaveTime += Time.deltaTime;
+            gameState.currentWaveTime += PumpTime.deltaTime;
 
             var filter = world.Filter<Spawner>().Exc<DestroyMarker>().End();
 

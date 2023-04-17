@@ -11,14 +11,14 @@ namespace TdGame
             var timeSpan = TimeSpan.FromSeconds(totalSeconds);
 
             var days = (int)Math.Floor(timeSpan.TotalDays);
-            var hours = (int)Math.Floor((double)timeSpan.Hours);
-            var minutes = (int)Math.Floor((double)timeSpan.Minutes);
-            var seconds = (int)Math.Floor((double)timeSpan.Seconds);
-
-            string resultStr = string.Empty;
+            var hours = timeSpan.Hours;
+            var minutes = timeSpan.Minutes;
+            var seconds = timeSpan.Seconds;
 
             if (totalSeconds == 0)
-                return "0";
+                return "00:00";
+
+            string resultStr;
 
             if (days > 0)
                 resultStr = string.Format("{0}:{1}", days, hours);

@@ -2,6 +2,7 @@ using Common;
 using Leopotam.EcsLite;
 using System;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
@@ -9,6 +10,14 @@ namespace TdGame
     {
         EcsWorld world;
         EcsPool<View> viewPool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {

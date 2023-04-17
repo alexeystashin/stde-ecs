@@ -1,14 +1,13 @@
 using UnityEngine;
 
-namespace Common
+namespace Pump.Unity
 {
     [RequireComponent(typeof(RectTransform))]
     public class SafeArea : MonoBehaviour
     {
-
-        private RectTransform safeAreaRect;
-        private Canvas canvas;
-        private Rect lastSafeArea;
+        RectTransform safeAreaRect;
+        Canvas canvas;
+        Rect lastSafeArea;
 
         void Start()
         {
@@ -17,7 +16,7 @@ namespace Common
             OnRectTransformDimensionsChange();
         }
 
-        private void OnRectTransformDimensionsChange()
+        void OnRectTransformDimensionsChange()
         {
 
             if (Screen.safeArea != lastSafeArea && canvas != null)
@@ -27,7 +26,7 @@ namespace Common
             }
         }
 
-        private void UpdateSizeToSafeArea()
+        void UpdateSizeToSafeArea()
         {
             var safeArea = Screen.safeArea;
             var inverseSize = new Vector2(1f, 1f) / canvas.pixelRect.size;

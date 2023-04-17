@@ -9,7 +9,7 @@ namespace TdGame
 
         public enum AreaActionTypeId
         {
-            Attack,
+            Hit,
             Freeze
         }
 
@@ -155,8 +155,8 @@ namespace TdGame
             {
                 id = AreaTemplateId.Explosion.ToString(),
                 prefabPath = GamePrefabPath.explosionArea,
-                attackPower = 10,
-                actionType = AreaActionTypeId.Attack.ToString(),
+                hitPower = 10,
+                actionType = AreaActionTypeId.Hit.ToString(),
                 size = 3,
                 actionCooldown = 999,
                 lifetime = 1.0f,
@@ -179,8 +179,8 @@ namespace TdGame
             {
                 id = AreaTemplateId.Poison.ToString(),
                 prefabPath = GamePrefabPath.poisonArea,
-                attackPower = 2f,
-                actionType = AreaActionTypeId.Attack.ToString(),
+                hitPower = 2f,
+                actionType = AreaActionTypeId.Hit.ToString(),
                 size = 4,
                 actionCooldown = 0.5f,
                 lifetime = 5.0f,

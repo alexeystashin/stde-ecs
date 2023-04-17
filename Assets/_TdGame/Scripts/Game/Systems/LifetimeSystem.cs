@@ -1,5 +1,7 @@
 using Leopotam.EcsLite;
+using Pump.Unity;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
@@ -8,6 +10,14 @@ namespace TdGame
         EcsWorld world;
         EcsPool<Lifetime> lifetimePool;
         EcsPool<DestroyMarker> destroyMarketPool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -18,6 +28,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<Lifetime>().End();
 
             foreach (int entity in filter)
@@ -25,7 +38,7 @@ namespace TdGame
                 ref var lifetime = ref lifetimePool.Get(entity);
 
                 if (lifetime.lifetime > 0)
-                    lifetime.lifetime = Mathf.Max(0, lifetime.lifetime - Time.deltaTime);
+                    lifetime.lifetime = Mathf.Max(0, lifetime.lifetime - PumpTime.deltaTime);
 
                 if (lifetime.lifetime <= 0)
                     destroyMarketPool.GetOrAdd(entity);

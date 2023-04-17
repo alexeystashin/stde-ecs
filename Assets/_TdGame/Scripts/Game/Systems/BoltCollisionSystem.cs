@@ -32,6 +32,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<Bolt>().Inc<Position>().End();
 
             foreach (int entity in filter)

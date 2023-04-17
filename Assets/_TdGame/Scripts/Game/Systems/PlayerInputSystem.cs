@@ -37,7 +37,7 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
-            if (gameState.isGameFinished)
+            if (!gameState.isGameRunning)
                 return;
 
             foreach (var touch in gameInput.touches)

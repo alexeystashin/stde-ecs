@@ -1,5 +1,7 @@
 using Leopotam.EcsLite;
+using Pump.Unity;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
@@ -9,6 +11,14 @@ namespace TdGame
         EcsPool<Motion> motionPool;
         EcsPool<Position> positionPool;
         EcsPool<Freezed> freezedPool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -20,6 +30,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<Motion>().Inc<Position>().End();
 
             foreach (int entity in filter)
@@ -30,9 +43,9 @@ namespace TdGame
                 var velocityZ = motion.velocityZ;
 
                 if (freezedPool.Has(entity))
-                    velocityZ *= 0.1f;
+                    velocityZ *= 0.2f;
 
-                position.z += velocityZ * Time.deltaTime;
+                position.z += velocityZ * PumpTime.deltaTime;
             }
         }
     }

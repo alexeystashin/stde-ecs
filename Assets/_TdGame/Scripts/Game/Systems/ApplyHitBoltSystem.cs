@@ -1,4 +1,5 @@
 using Leopotam.EcsLite;
+using Zenject;
 
 namespace TdGame
 {
@@ -8,6 +9,14 @@ namespace TdGame
         EcsPool<HitBolt> hitBoltPool;
         EcsPool<BoltTrigger> boltTriggerPool;
         EcsPool<Damage> damagePool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -19,6 +28,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<BoltTrigger>().Inc<HitBolt>().End();
 
             foreach (int entity in filter)

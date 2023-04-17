@@ -1,5 +1,6 @@
 using Common;
 using Leopotam.EcsLite;
+using Pump.Unity;
 using System;
 using UnityEngine;
 using Zenject;
@@ -15,8 +16,7 @@ namespace TdGame
         GameRules gameRules;
         GameUi gameUi;
         StaticGameData staticGameData;
-        PrefabCache prefabCache;
-        //EntityView.Factory entityViewFactory;
+        IUnityPrefabProvider prefabProvider;
         EntityView.Pool entityViewPool;
 
         EcsPool<Spawner> spawnerPool;
@@ -37,16 +37,15 @@ namespace TdGame
         EcsPool<TurretUi> turretUiPool;
 
         [Inject]
-        void Construct(DiContainer di, EcsWorld world, GameState gameState, GameRules gameRules, GameUi gameUi, StaticGameData staticGameData,
-            PrefabCache prefabCache, EntityView.Factory entityViewFactory, EntityView.Pool entityViewPool)
+        void Construct(EcsWorld world, GameState gameState, GameRules gameRules, GameUi gameUi, StaticGameData staticGameData,
+            IUnityPrefabProvider prefabProvider, EntityView.Pool entityViewPool)
         {
             this.world = world;
             this.gameState = gameState;
             this.gameRules = gameRules;
             this.gameUi = gameUi;
             this.staticGameData = staticGameData;
-            this.prefabCache = prefabCache;
-            //this.entityViewFactory = entityViewFactory;
+            this.prefabProvider = prefabProvider;
             this.entityViewPool = entityViewPool;
 
             InitPools();
@@ -151,7 +150,7 @@ namespace TdGame
             ref var view = ref viewPool.Add(entity);
             view.viewObject = viewObject;
 
-            var hudObject = GameObject.Instantiate(prefabCache.GetPrefab(GamePrefabPath.turretHud),
+            var hudObject = GameObject.Instantiate(prefabProvider.GetPrefab(GamePrefabPath.turretHud),
                 GameUtils.PositionToVector3(position.lineId, position.x, position.z),
                 Quaternion.identity, gameUi.hudContiner);
             var hud = hudObject.GetComponent<TurretHud>();
@@ -222,11 +221,6 @@ namespace TdGame
             viewObject.transform.rotation = Quaternion.identity;
             viewObject.entityId = world.PackEntity(entity);
 
-            //var viewObject = entityViewFactory.Create(template.prefabPath,
-            //    GameUtils.PositionToVector3(position.lineId, position.x, position.z),
-            //    Quaternion.identity,
-            //    world.PackEntity(entity));
-
             ref var view = ref viewPool.Add(entity);
             view.viewObject = viewObject;
         }
@@ -237,10 +231,10 @@ namespace TdGame
 
             ref var area = ref areaPool.Add(entity);
 
-            if (template.actionType == MockStaticGameData.AreaActionTypeId.Attack.ToString())
+            if (template.actionType == MockStaticGameData.AreaActionTypeId.Hit.ToString())
             {
                 ref var hitArea = ref hitAreaPool.Add(entity);
-                hitArea.hitPower = template.attackPower;
+                hitArea.hitPower = template.hitPower;
                 hitArea.size = template.size;
                 hitArea.cooldown = template.actionCooldown;
 
@@ -279,8 +273,6 @@ namespace TdGame
 
         public void Dispose()
         {
-            Debug.LogWarning("GameObjectBuilder.Dispose()");
-
             gameState = null;
             world = null;
             //todo: clear pool references

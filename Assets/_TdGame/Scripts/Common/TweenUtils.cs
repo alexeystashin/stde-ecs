@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Common
+namespace Pump.Unity
 {
     public class TweenUtils
     {

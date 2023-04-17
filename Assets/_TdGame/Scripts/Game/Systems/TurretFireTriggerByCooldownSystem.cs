@@ -30,6 +30,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<Turret>().Exc<TurretFireTrigger>().Exc<AnimationMarker>().End();
 
             foreach (int entity in filter)

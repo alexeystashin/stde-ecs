@@ -1,5 +1,6 @@
 using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
@@ -9,6 +10,14 @@ namespace TdGame
         EcsPool<Health> healthPool;
         EcsPool<Damage> damagePool;
         EcsPool<DestroyMarker> destroyMarkerPool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -20,6 +29,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<Damage>().Inc<Health>().Exc<DestroyMarker>().End();
 
             foreach (int entity in filter)

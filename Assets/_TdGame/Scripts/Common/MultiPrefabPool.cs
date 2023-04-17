@@ -6,25 +6,24 @@ namespace Common
 {
     public class MultiPrefabPool<TKey, TValue> where TValue : Component, IPoolable<IMemoryPool>
     {
-        Dictionary<TKey, InternalPool<TValue>> _pools = new Dictionary<TKey, InternalPool<TValue>>();
-        DiContainer _container;
-        MemoryPoolSettings _settings;
-        IFactory<TKey, TValue> _factory;
+        Dictionary<TKey, InternalPool> pools = new Dictionary<TKey, InternalPool>();
+        DiContainer di;
+        MemoryPoolSettings settings;
+        IFactory<TKey, TValue> factory;
 
-        public MultiPrefabPool(DiContainer container, MemoryPoolSettings settings, IFactory<TKey, TValue> factory)
+        public MultiPrefabPool(DiContainer di, MemoryPoolSettings settings, IFactory<TKey, TValue> factory)
         {
-            _container = container;
-            _settings = settings;
-            _factory = factory;
-
+            this.di = di;
+            this.settings = settings;
+            this.factory = factory;
         }
 
         public TValue Spawn(TKey param)
         {
-            if (!_pools.TryGetValue(param, out var pool))
+            if (!pools.TryGetValue(param, out var pool))
             {
                 pool = CreatePool(param);
-                _pools.Add(param, pool);
+                pools.Add(param, pool);
             }
 
             return pool.Spawn(pool);
@@ -32,32 +31,32 @@ namespace Common
 
         public void Despawn(TKey param, TValue gameObject)
         {
-            _pools[param].Despawn(gameObject);
+            pools[param].Despawn(gameObject);
         }
 
-        InternalPool<TValue> CreatePool(TKey param)
+        InternalPool CreatePool(TKey param)
         {
-            return _container.Instantiate<InternalPool<TValue>>(new object[] { _settings, new FactoryProxy<TValue>(param, _factory) });
+            return di.Instantiate<InternalPool>(new object[] { settings, new FactoryProxy(param, factory) });
         }
 
-        class FactoryProxy<TValue> : IFactory<TValue> //Factory which proxy all creation to factory
+        class FactoryProxy : IFactory<TValue> //Factory which proxy all creation to factory
         {
-            TKey _param;
-            IFactory<TKey, TValue> _factory;
+            TKey param;
+            IFactory<TKey, TValue> factory;
 
             public FactoryProxy(TKey param, IFactory<TKey, TValue> factory)
             {
-                _param = param;
-                _factory = factory;
+                this.param = param;
+                this.factory = factory;
             }
 
             public TValue Create()
             {
-                return _factory.Create(_param);
+                return factory.Create(param);
             }
         }
 
-        class InternalPool<TValue> : MonoPoolableMemoryPool<IMemoryPool, TValue> where TValue : Component, IPoolable<IMemoryPool>
+        class InternalPool : MonoPoolableMemoryPool<IMemoryPool, TValue>
         {
         }
     }

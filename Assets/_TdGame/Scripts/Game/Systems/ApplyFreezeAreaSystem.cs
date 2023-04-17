@@ -1,5 +1,6 @@
 using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
@@ -11,6 +12,14 @@ namespace TdGame
         EcsPool<Cooldown> cooldownPool;
         EcsPool<Position> positionPool;
         EcsPool<Freezed> freezedPool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -24,6 +33,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<AreaTrigger>().Inc<FreezeArea>().End();
             var creaturesFilter = world.Filter<Creature>().Exc<DestroyMarker>().End();
 
@@ -43,7 +55,7 @@ namespace TdGame
                     if (creaturePosition.lineId == position.lineId && Mathf.Abs(creaturePosition.z - position.z) <= freezeArea.size * 0.5f)
                     {
                         var freezeTime = 1.0f; // todo: make configurable
-                        Debug.Log($"Freeze creature {creatureEntity} for {freezeTime} points");
+                        //Debug.Log($"Freeze creature {creatureEntity} for {freezeTime} points");
                         ref var targetFreezed = ref freezedPool.GetOrAdd(creatureEntity);
                         targetFreezed.time = freezeTime;
                     }

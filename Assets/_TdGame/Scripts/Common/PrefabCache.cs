@@ -2,10 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Common
+namespace Pump.Unity
 {
-    public class PrefabCache : IDisposable
+    public interface IUnityPrefabProvider : IDisposable
     {
+        GameObject GetPrefab(string path);
+    }
+
+    public class PrefabCache : IUnityPrefabProvider
+    {
+        const string errorPrefabPath = "Error";
+
         Dictionary<string, GameObject> prefabs = new();
 
         public Func<string, GameObject> ExternalPrefabSource;
@@ -13,7 +20,7 @@ namespace Common
         public GameObject GetPrefab(string path)
         {
             if(string.IsNullOrEmpty(path))
-                return GetPrefab("Error");
+                return GetPrefab(errorPrefabPath);
 
             if (prefabs.ContainsKey(path))
                 return prefabs[path];
@@ -29,8 +36,8 @@ namespace Common
             {
                 Debug.LogWarning("Prefab not found: " + path);
 
-                if (path != "Error")
-                    return GetPrefab("Error");
+                if (path != errorPrefabPath)
+                    return GetPrefab(errorPrefabPath);
                 else
                     return null;
             }
@@ -47,7 +54,8 @@ namespace Common
 
         public void Dispose()
         {
-            Debug.LogWarning("PrefabCache.Dispose");
+            prefabs.Clear();
+            ExternalPrefabSource = null;
         }
     }
 }

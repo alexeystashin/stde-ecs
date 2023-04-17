@@ -6,13 +6,13 @@
 
         public string prefabPath;
 
-        public string actionType; // "Damage" (default) or "Freeze"
+        public string actionType; // "Hit" (default) or "Freeze"
 
         public float size;
 
         public float lifetime;
 
-        public float attackPower;
+        public float hitPower;
 
         public float actionCooldown;
 

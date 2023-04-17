@@ -11,12 +11,14 @@ namespace TdGame
         EcsPool<Position> positionPool;
         EcsPool<Cooldown> cooldownPool;
 
+        GameState gameState;
         StaticGameData staticGameData;
         GameObjectBuilder objectBuilder;
 
         [Inject]
-        void Construct(StaticGameData staticGameData, GameObjectBuilder objectBuilder)
+        void Construct(GameState gameState, StaticGameData staticGameData, GameObjectBuilder objectBuilder)
         {
+            this.gameState = gameState;
             this.staticGameData = staticGameData;
             this.objectBuilder = objectBuilder;
         }
@@ -31,6 +33,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<Spawner>().Exc<DestroyMarker>().End();
 
             foreach (int entity in filter)

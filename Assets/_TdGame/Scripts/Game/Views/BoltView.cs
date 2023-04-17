@@ -1,3 +1,4 @@
+using Pump.Unity;
 using UnityEngine;
 
 namespace TdGame
@@ -16,7 +17,7 @@ namespace TdGame
         {
             if (smoothDisposeTime > 0)
             {
-                smoothDisposeTime -= Time.deltaTime;
+                smoothDisposeTime -= PumpTime.deltaTime;
                 if (smoothDisposeTime <= 0)
                     Dispose();
             }

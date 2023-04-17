@@ -1,5 +1,7 @@
 using Leopotam.EcsLite;
+using Pump.Unity;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
@@ -11,6 +13,14 @@ namespace TdGame
         EcsPool<TurretMotion> turretMotionPool;
         EcsPool<AnimationMarker> animationMarkerPool;
         EcsPool<View> viewPool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -24,6 +34,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<TurretMotion>().End();
 
             foreach (int entity in filter)
@@ -32,7 +45,7 @@ namespace TdGame
                 ref var turretMotion = ref turretMotionPool.Get(entity);
                 ref var position = ref positionPool.Get(entity);
 
-                turretMotion.time = Mathf.Min(turretMotion.time + Time.deltaTime, turretMotion.timeTotal);
+                turretMotion.time = Mathf.Min(turretMotion.time + PumpTime.deltaTime, turretMotion.timeTotal);
 
                 ref var view = ref viewPool.Get(entity);
                 var t = turretMotion.time / turretMotion.timeTotal;

@@ -1,5 +1,6 @@
 using Leopotam.EcsLite;
 using UnityEngine;
+using Zenject;
 
 namespace TdGame
 {
@@ -10,6 +11,14 @@ namespace TdGame
         EcsPool<Position> positionPool;
         EcsPool<DestroyMarker> destroyMarkerPool;
         EcsPool<GameFinishedEvent> gameFinishedEventPool;
+
+        GameState gameState;
+
+        [Inject]
+        void Construct(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
 
         public void Init(IEcsSystems systems)
         {
@@ -22,6 +31,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<Creature>().Inc<Position>().End();
 
             foreach (int entity in filter)
@@ -33,7 +45,7 @@ namespace TdGame
 
                     var eventEntity = eventsWorld.NewEntity();
                     ref var gameFinishedEvent = ref gameFinishedEventPool.Add(eventEntity);
-                    gameFinishedEvent.isWin = false;
+                    gameFinishedEvent.isGameWon = false;
                 }
             }
         }

@@ -10,6 +10,7 @@ namespace TdGame
         DiContainer di;
 
         EcsWorld world;
+        EcsWorld eventsWorld;
         GameState gameState;
         GameRules gameRules;
         GameObjectBuilder objectBuilder;
@@ -54,47 +55,56 @@ namespace TdGame
         {
             systems = new EcsSystems(world);
             systems
-                // register your systems here
+                .Add(di.Instantiate<SwitchGamePauseByInputSystem>())
+                .Add(di.Instantiate<GamePauseSystem>())
                 .Add(di.Instantiate<LifetimeSystem>())
                 .Add(di.Instantiate<CooldownSystem>())
                 .Add(di.Instantiate<FreezedTimeSystem>())
                 .Add(di.Instantiate<SpawnCreatureSystem>())
                 .Add(di.Instantiate<UpdateCreatureListSystem>())
                 .Add(di.Instantiate<UpdateTurretListSystem>())
+
                 .Add(di.Instantiate<PlayerInputSystem>())
                 .Add(di.Instantiate<TriggerAreaByCooldownSystem>())
                 .Add(di.Instantiate<TurretFireTriggerByCooldownSystem>())
                 .Add(di.Instantiate<TurretFireSystem>())
                 .Add(di.Instantiate<MoveTurretSystem>())
                 .Add(di.Instantiate<MoveEntitySystem>())
+
                 .Add(di.Instantiate<UpdateEntityViewPositionSystem>())
                 .Add(di.Instantiate<UpdateTurretHudSystem>())
+
                 .Add(di.Instantiate<BoltCollisionSystem>())
                 .Add(di.Instantiate<ApplyAreaBoltSystem>())
                 .Add(di.Instantiate<ApplyHitBoltSystem>())
                 .Add(di.Instantiate<ApplyHitAreaSystem>())
                 .Add(di.Instantiate<ApplyFreezeAreaSystem>())
                 .Add(di.Instantiate<ApplyDamageSystem>())
-                .Add(di.Instantiate<CreatureArriveSystem>())
-                .Add(di.Instantiate<CheckGameCompleteSystem>())
-                .Add(di.Instantiate<WaveSystem>())
-                .Add(di.Instantiate<UpdateGameUiSystem>())
-                .Add(di.Instantiate<AddScoreForKillSystem>())
                 .Add(di.Instantiate<BoltArriveSystem>())
+                .Add(di.Instantiate<CreatureArriveSystem>())
+                .Add(di.Instantiate<AddScoreForKillSystem>())
+                .Add(di.Instantiate<WaveSystem>())
+
+                .Add(di.Instantiate<CheckGameCompleteSystem>())
+                .Add(di.Instantiate<UpdateGameUiSystem>())
+                .Add(di.Instantiate<ShowGameResultWindowSystem>())
                 .Add(di.Instantiate<FinishGameSystem>())
-                .Add(di.Instantiate<RemoveComponentSystem<AreaTrigger>>())
-                .Add(di.Instantiate<RemoveComponentSystem<BoltTrigger>>())
-                .Add(di.Instantiate<RemoveComponentSystem<TurretFireTrigger>>())
-                .Add(di.Instantiate<RemoveComponentSystem<GameFinishedEvent>>())
+
                 .Add(di.Instantiate<DestroyEntityUiSystem>())
                 .Add(di.Instantiate<DestroyEntityViewSystem>())
                 .Add(di.Instantiate<DestroyEntitySystem>())
 
-                // register additional worlds here, for example:
-                .AddWorld(new EcsWorld(), "events")
+                .Add(di.Instantiate<RemoveComponentSystem<AreaTrigger>>())
+                .Add(di.Instantiate<RemoveComponentSystem<BoltTrigger>>())
+                .Add(di.Instantiate<RemoveComponentSystem<TurretFireTrigger>>())
+                .Add(di.Instantiate<RemoveComponentSystem<GameFinishedEvent>>())
+
+                // register additional worlds
+                .AddWorld(eventsWorld = new EcsWorld(), "events")
+
 #if UNITY_EDITOR
-                // add debug systems for custom worlds here, for example:
-                // .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem("events"))
+                // debug systems
+                .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem("events"))
                 .Add(new Leopotam.EcsLite.UnityEditor.EcsWorldDebugSystem())
 #endif
                 .Init();
@@ -105,7 +115,6 @@ namespace TdGame
             if (gameState.isGameFinished)
                 return;
 
-            // process systems here.
             if (systems != null)
                 systems.Run();
         }
@@ -116,7 +125,8 @@ namespace TdGame
             if (world == null)
                 return;
 
-            gameState.isGameFinished = true;
+            if (!gameState.isGameFinished)
+                gameState.isGameLost = true;
 
             var filter = world.Filter<View>().End();
             var destroyMarkerPool = world.GetPool<DestroyMarker>();
@@ -142,6 +152,11 @@ namespace TdGame
             }
             
             // cleanup custom worlds here.
+            if (eventsWorld != null)
+            {
+                eventsWorld.Destroy();
+                eventsWorld = null;
+            }
             
             // cleanup default world.
             if (world != null) {

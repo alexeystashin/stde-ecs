@@ -24,6 +24,9 @@ namespace TdGame
 
         public void Run(IEcsSystems systems)
         {
+            if (!gameState.isGameRunning)
+                return;
+
             var filter = world.Filter<DestroyMarker>().Inc<Creature>().End();
 
             foreach (int entity in filter)
